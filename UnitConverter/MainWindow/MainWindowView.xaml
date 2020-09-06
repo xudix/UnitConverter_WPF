@@ -1,0 +1,42 @@
+﻿<Window
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:UnitConverter"
+        xmlns:MainWindow="clr-namespace:UnitConverter.MainWindow" x:Name="MainWindow" x:Class="UnitConverter.MainWindowView"
+        mc:Ignorable="d"
+        Title="MainWindow" Height="450" Width="403" WindowStyle="ThreeDBorderWindow">
+
+    <Window.DataContext>
+        <MainWindow:MainWindowViewModel/>
+    </Window.DataContext>
+
+    <StackPanel Background="Black">
+
+        <StackPanel.Resources>
+            <local:Prefixes x:Key="preFixNames"/>
+        </StackPanel.Resources>
+
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition/>
+                <ColumnDefinition/>
+                <ColumnDefinition/>
+            </Grid.ColumnDefinitions>
+            <Label Content="Value" HorizontalAlignment="Center" Margin="0" Foreground="White" VerticalContentAlignment="Stretch" HorizontalContentAlignment="Center"/>
+            <Label x:Name="prefix_Label" Grid.Column="1" Content="Prefix" HorizontalAlignment="Center" Margin="0" Foreground="White" VerticalContentAlignment="Stretch" HorizontalContentAlignment="Center"/>
+            <Label Grid.Column="2" Content="Unit" HorizontalAlignment="Center" Margin="0" Foreground="White" VerticalContentAlignment="Stretch" HorizontalContentAlignment="Center"/>
+            <TextBox x:Name="value_Input" Grid.Row="1" Padding="5,0" Margin="5,0" Background="{x:Null}" BorderBrush="White" Foreground="White" TextAlignment="Right" Text="{Binding InputValue, Mode=TwoWay}"/>
+            <ComboBox x:Name="prefix_Input" Grid.Column="1" Grid.Row="1" VerticalContentAlignment="Stretch" HorizontalContentAlignment="Center" Background="{x:Null}" Margin="5,0" ItemsSource="{Binding Mode=OneWay, Source={StaticResource preFixNames}}" Text="{Binding InputPrefix}" Foreground="{DynamicResource {x:Static SystemColors.ControlTextBrushKey}}" IsReadOnly="True"/>
+            <ComboBox x:Name="unit_Input" Grid.Column="2" Grid.Row="1" Foreground="{DynamicResource {x:Static SystemColors.ControlTextBrushKey}}" VerticalContentAlignment="Stretch" HorizontalContentAlignment="Center" Background="{x:Null}" 
+                    IsEditable="True" Margin="5,0" Text="{Binding InputUnit}"/>
+        </Grid>
+
+    </StackPanel>
+
+</Window>
