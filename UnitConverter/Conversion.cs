@@ -17,11 +17,24 @@ namespace UnitConverter
     {
         private IList<Unit> new_Units;
         private IList<string> new_Prefixes;
+
+        // When no unit is specified, the Unit is set to the unit of number, i.e. Measure of NUMBER and multiplier of 1.0.
+        private static Unit number_Unit = new Unit();
+        private VariableWithUnit input;
+
         #region Public Properties
 
-        public VariableWithUnit Input { get; set; }
+        public VariableWithUnit Input 
+        {
+            get => input;
+            set
+            {
+                input = value;
+                //CalculateOutput();
+            }
+        }
 
-        public VariableWithUnit[] Output { get; set; }
+        public VariableWithUnit[] Results { get; set; }
 
         /// <summary>
         /// All units that matches the measure of the input, except the unit of input.
@@ -36,8 +49,8 @@ namespace UnitConverter
             }
         }
 
-        public IList<string> New_Prefixes 
-        { 
+        public IList<string> New_Prefixes
+        {
             get => new_Prefixes;
             set
             {
@@ -67,7 +80,7 @@ namespace UnitConverter
             try
             {
                 //Read the list of all units from xml file.
-                using(System.IO.StreamReader streamReader = new System.IO.StreamReader(unitsFile))
+                using (System.IO.StreamReader streamReader = new System.IO.StreamReader(unitsFile))
                 {
                     System.Xml.Serialization.XmlSerializer xmlReader = new System.Xml.Serialization.XmlSerializer(typeof(List<Unit>));
                     All_Units = (List<Unit>)xmlReader.Deserialize(streamReader);
@@ -81,7 +94,7 @@ namespace UnitConverter
             Input = new VariableWithUnit(5, All_Units[0]);
 
             //
-            
+
         }
 
         #endregion
@@ -91,7 +104,7 @@ namespace UnitConverter
         /// <summary>
         /// Calculate the Output based on Input, New Prefixes, and New Units.
         /// </summary>
-        //public void CalculateOutput(VariableWithUnit input, IList<Unit> new_units, IList<string> new_prefixes)
+        //public void CalculateOutput(VariableWithUnit input, ILi   st<Unit> new_units, IList<string> new_prefixes)
         public void CalculateOutput()
         {
             //if (new_units.Count != new_prefixes.Count)
@@ -99,32 +112,73 @@ namespace UnitConverter
             //Input = input;
             //New_Units = new_units;
             //New_Prefixes = new_prefixes;
-
-            Output = new VariableWithUnit[New_Units.Count];
-            for (int index = 0; index < New_Units.Count; index++)
-                Output[index] = Input.Convert(New_Units[index], New_Prefixes[index]);
+            if(New_Units != null && New_Prefixes != null)
+            {
+                Results = new VariableWithUnit[New_Units.Count];
+                for (int index = 0; index < New_Units.Count; index++)
+                    Results[index] = Input.Convert(New_Units[index], New_Prefixes[index]);
+                foreach (VariableWithUnit var in Results)
+                    Console.WriteLine(var);
+            }
+            
         }
 
         #endregion
 
         #region Public methods
-        
+
         /// <summary>
         /// Set the Input Unit based on a string input.
         /// The method will try to match the symbol or name of the unit.
         /// </summary>
-        /// <param name="unitSymbolName">The symbol or name of the unit</param>
-        public void SetInputUnit(string unitSymbolName)
+        /// <param name="inputUnitStr">The symbol or name of the unit</param>
+        public void SetInputUnit(string inputUnitStr)
         {
-            foreach(Unit item in All_Units)
+            if(inputUnitStr == "" || inputUnitStr == null)
             {
-                if (item.UnitSymbol == unitSymbolName || item.UnitName == unitSymbolName)
+                Input.Unit = number_Unit;
+                return;
+            }   
+            // This method will first check if the input string is a symbol of a unit.
+            // If it is, then this unit will be chosen as the InputUnit.
+            // Otherwise, the method will search for this string in all Unit.ToString to find the unit.
+            void updateInputUnit(Unit unit)
+            {
+                Input.Unit = unit;
+                // Found the correct unit. Now generate the list of new units based on measure
+                new_Units = new List<Unit>(); // Set the private field here so that we don't invoke CalculateOutput() before New_Prefixes are set.
+                foreach (Unit item in All_Units)
                 {
-                    Input.Unit = item;
+                    if (item.IsSameMeasure(unit) && item != unit)
+                    {
+                        new_Units.Add(item);
+                    }
+                }
+                // Generate a string array and make them all empty
+                new_Prefixes = new string[New_Units.Count];
+                for (int index = 0; index < new_Prefixes.Count; index++)
+                    new_Prefixes[index] = "";
+                CalculateOutput();
+            }
+            foreach (Unit unit in All_Units)
+            {
+                if (unit.UnitSymbol.ToLower() == inputUnitStr.ToLower())
+                {
+                    updateInputUnit(unit);
+                    return;
+                }
+                    
+            }
+            foreach (Unit unit in All_Units)
+            {
+                if (unit.ToString().ToLower().Contains(inputUnitStr.ToLower()))
+                {
+                    updateInputUnit(unit);
                     return;
                 }
             }
-            Input.Unit = null;
+            Input.Unit = number_Unit;
+
         }
 
         /// <summary>
@@ -137,7 +191,7 @@ namespace UnitConverter
             Save();
 
         }
-            
+
 
         /// <summary>
         /// Update one prefix in result. This will update the Output
@@ -146,7 +200,7 @@ namespace UnitConverter
         /// <param name="new_prefix">The string for the new prefix</param>
         public void UpdatePrefix(int index, string new_prefix)
         {
-            if(new_Prefixes[index] != new_prefix)
+            if (new_Prefixes[index] != new_prefix)
             {
                 new_Prefixes[index] = new_prefix;
                 CalculateOutput();
@@ -160,7 +214,7 @@ namespace UnitConverter
             xmlWriter.Serialize(fileStream, All_Units);
             fileStream.Close();
         }
-                
+
 
         #endregion
     }

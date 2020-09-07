@@ -7,6 +7,10 @@ using System.Threading.Tasks;
 
 namespace UnitConverter.MainWindow
 {
+    /// <summary>
+    /// View model connects the model (Conversion) and the view (MainWindowView).
+    /// The view model will be responsible for providing search suggestions for the Unit input box
+    /// </summary>
     class MainWindowViewModel : INotifyPropertyChanged
     {
         #region Publit properties exposed to view
@@ -16,10 +20,12 @@ namespace UnitConverter.MainWindow
             get => model.Input.Value;
             set
             {
-                if(value != model.Input.Value)
+                if (value != model.Input.Value)
                 {
                     model.Input.Value = value;
-                    NotifyPropertyChanged();
+                    model.CalculateOutput();
+                    //NotifyPropertyChanged();
+                    NotifyPropertyChanged("Results");
                 }
             }
         }
@@ -32,22 +38,58 @@ namespace UnitConverter.MainWindow
                 if (value != model.Input.Prefix)
                 {
                     model.Input.Prefix = value;
+                    model.CalculateOutput();
+                    //NotifyPropertyChanged();
+                    NotifyPropertyChanged("Results");
+                }
+            }
+        }
+
+        /// <summary>
+        /// This property is binded to the Text of the unit input box.
+        /// It takes user input, and is used to find possible units.
+        /// </summary>
+        public string InputUnitStr
+        {
+            get => inputUnitStr;
+            set
+            {
+                if (value != inputUnitStr)
+                {
+                    // Update the PossibleUnits list by performing a search
+                    inputUnitStr = value;
+                    SearchPossibleUnits(inputUnitStr);
+                    // Also send it to model (Conversion) to update results
+                    model.SetInputUnit(inputUnitStr);
+                    NotifyPropertyChanged("Results");
+                }
+            }
+        }
+
+        public VariableWithUnit[] Results
+        {
+            get => model.Results;
+            set
+            {
+                if (value != results)
+                {
+                    results = value;
                     NotifyPropertyChanged();
                 }
             }
         }
 
-        public string InputUnit
+        /// <summary>
+        /// A list of possible units based on user input in unit_Input.
+        /// 
+        /// </summary>
+        public List<Unit> PossibleUnits
         {
-            get => model.Input.Unit.UnitSymbol;
+            get => possibleUnits;
             set
             {
-                if (value != model.Input.Unit.UnitSymbol)
-                {
-                    // Do something to set the unit
-                    model.SetInputUnit(value);
-                    NotifyPropertyChanged();
-                }
+                possibleUnits = value;
+                NotifyPropertyChanged();
             }
         }
 
@@ -59,6 +101,7 @@ namespace UnitConverter.MainWindow
         public MainWindowViewModel()
         {
             model = new Conversion();
+            possibleUnits = model.All_Units;
 
             // For testing only
             //Measure temperature = new Measure(0, 0, 0, 0, 1, 0, 0, "Temperature");
@@ -71,11 +114,35 @@ namespace UnitConverter.MainWindow
         #region private fields
 
         private Conversion model;
+        private List<Unit> possibleUnits = new List<Unit>();
+        private string inputUnitStr;
+        private VariableWithUnit[] results;
         #endregion
 
         #region private methods
 
-        
+        /// <summary>
+        /// Update the PossibleUnits list when the input unit string changes
+        /// </summary>
+        private void SearchPossibleUnits(string inputStr)
+        {
+            if (inputStr == "")
+            {
+                possibleUnits = model.All_Units;
+            }
+            else
+            {
+                possibleUnits = new List<Unit>();
+                foreach (Unit unit in model.All_Units)
+                {
+                    if (unit.ToString().ToLower().Contains(inputStr.ToLower()))
+                        possibleUnits.Add(unit);
+                }
+            }
+            NotifyPropertyChanged("PossibleUnits");
+            //foreach (Unit unit in possibleUnits)
+            //    Console.WriteLine(unit.ToString());
+        }
 
         #endregion
 

@@ -36,7 +36,7 @@ namespace UnitConverter
         {
             if (Unit.IsSameMeasure(new_unit))
             {
-                double new_value = (Value * Unit.Multiplier * Prefixes.GetPrefixValue(Prefix) + Unit.Offset) / new_unit.Multiplier / Prefixes.GetPrefixValue(new_prefix) - new_unit.Offset;
+                double new_value = (Value * Unit.Multiplier * Prefixes.GetPrefixValue(Prefix) + Unit.Offset - new_unit.Offset) / new_unit.Multiplier / Prefixes.GetPrefixValue(new_prefix);
                 return new VariableWithUnit(new_value, new_unit, new_prefix);
             }
             else

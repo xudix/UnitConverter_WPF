@@ -18,24 +18,34 @@
             <local:Prefixes x:Key="preFixNames"/>
         </StackPanel.Resources>
 
-        <Grid>
+        <Grid x:Name="grid">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
             <Grid.ColumnDefinitions>
                 <ColumnDefinition/>
-                <ColumnDefinition/>
+                <ColumnDefinition Width="Auto"/>
                 <ColumnDefinition/>
             </Grid.ColumnDefinitions>
             <Label Content="Value" HorizontalAlignment="Center" Margin="0" Foreground="White" VerticalContentAlignment="Stretch" HorizontalContentAlignment="Center"/>
             <Label x:Name="prefix_Label" Grid.Column="1" Content="Prefix" HorizontalAlignment="Center" Margin="0" Foreground="White" VerticalContentAlignment="Stretch" HorizontalContentAlignment="Center"/>
             <Label Grid.Column="2" Content="Unit" HorizontalAlignment="Center" Margin="0" Foreground="White" VerticalContentAlignment="Stretch" HorizontalContentAlignment="Center"/>
-            <TextBox x:Name="value_Input" Grid.Row="1" Padding="5,0" Margin="5,0" Background="{x:Null}" BorderBrush="White" Foreground="White" TextAlignment="Right" Text="{Binding InputValue, Mode=TwoWay}"/>
-            <ComboBox x:Name="prefix_Input" Grid.Column="1" Grid.Row="1" VerticalContentAlignment="Stretch" HorizontalContentAlignment="Center" Background="{x:Null}" Margin="5,0" ItemsSource="{Binding Mode=OneWay, Source={StaticResource preFixNames}}" Text="{Binding InputPrefix}" Foreground="{DynamicResource {x:Static SystemColors.ControlTextBrushKey}}" IsReadOnly="True"/>
-            <ComboBox x:Name="unit_Input" Grid.Column="2" Grid.Row="1" Foreground="{DynamicResource {x:Static SystemColors.ControlTextBrushKey}}" VerticalContentAlignment="Stretch" HorizontalContentAlignment="Center" Background="{x:Null}" 
-                    IsEditable="True" Margin="5,0" Text="{Binding InputUnit}"/>
+            <TextBox x:Name="value_Input" Grid.Row="1" Padding="5,0" Margin="5,0" BorderBrush="White" TextAlignment="Right" Text="{Binding InputValue, Mode=TwoWay}" />
+            <ComboBox x:Name="prefix_Input" Grid.Column="1" Grid.Row="1" VerticalContentAlignment="Stretch" HorizontalContentAlignment="Center" Background="{x:Null}" Margin="5,0" 
+                      ItemsSource="{Binding Mode=OneWay, Source={StaticResource preFixNames}}" Text="{Binding InputPrefix}" Foreground="{DynamicResource {x:Static SystemColors.ControlTextBrushKey}}" IsReadOnly="True" MinWidth="40"/>
+            <ComboBox x:Name="unit_Input" Grid.Column="2" Grid.Row="1" Foreground="{DynamicResource {x:Static SystemColors.ControlTextBrushKey}}" VerticalContentAlignment="Stretch" Background="{x:Null}" 
+                    IsEditable="True" Margin="5,0" Text="{Binding InputUnitStr}" ItemsSource="{Binding PossibleUnits}" PreviewTextInput="Unit_Input_PreviewTextInput" HorizontalContentAlignment="Stretch"/>
         </Grid>
+        <DataGrid Margin="5,10" ItemsSource="{Binding Results}" AutoGenerateColumns="False" HorizontalContentAlignment="Center" VerticalContentAlignment="Stretch" HeadersVisibility="None">
+            <DataGrid.Columns>
+                <DataGridTextColumn Binding="{Binding Value, Mode=OneWay, NotifyOnSourceUpdated=True, StringFormat=\{0:N\}}" ClipboardContentBinding="{x:Null}" CanUserResize="False" Width="*" />
+                <DataGridComboBoxColumn ClipboardContentBinding="{x:Null}" SelectedValueBinding="{x:Null}" SelectedItemBinding="{x:Null}" TextBinding="{Binding Prefix, Mode=TwoWay}" 
+                                        ItemsSource="{Binding Mode=OneWay, Source={StaticResource preFixNames}}" CanUserResize="False" MinWidth="50"/>
+                <DataGridTextColumn Binding="{Binding Unit}" ClipboardContentBinding="{x:Null}" CanUserResize="False" Width="*"/>
+            </DataGrid.Columns>
+
+        </DataGrid>
 
     </StackPanel>
 

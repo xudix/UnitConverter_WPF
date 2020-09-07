@@ -84,6 +84,9 @@ namespace UnitConverter
             UnitSymbol = unitSymbol;
         }
 
+        /// <summary>
+        /// The parameterless constructor will result in an empty unit. The measure is NUMBER and the Multiplier is 1.0.
+        /// </summary>
         public Unit(): base()
         {
             Multiplier = 1.0;
@@ -152,7 +155,7 @@ namespace UnitConverter
             this == measure;
 
         public override string ToString() =>
-            UnitSymbol;
+            string.Format("{0} ({1})", UnitSymbol, UnitName);
 
         #endregion
     }
