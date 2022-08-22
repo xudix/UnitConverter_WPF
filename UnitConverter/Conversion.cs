@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Data;
 using System.Linq;
 using System.Text;
@@ -16,7 +17,6 @@ namespace UnitConverter
     class Conversion
     {
         private IList<Unit> new_Units;
-        private IList<string> new_Prefixes;
 
         // When no unit is specified, the Unit is set to the unit of number, i.e. Measure of NUMBER and multiplier of 1.0.
         private static Unit number_Unit = new Unit();
@@ -27,11 +27,6 @@ namespace UnitConverter
         public VariableWithUnit Input 
         {
             get => input;
-            set
-            {
-                input = value;
-                //CalculateOutput();
-            }
         }
 
         public VariableWithUnit[] Results { get; set; }
@@ -45,17 +40,7 @@ namespace UnitConverter
             set
             {
                 new_Units = value;
-                CalculateOutput();
-            }
-        }
-
-        public IList<string> New_Prefixes
-        {
-            get => new_Prefixes;
-            set
-            {
-                new_Prefixes = value;
-                CalculateOutput();
+                CalculateNewOutput();
             }
         }
 
@@ -89,9 +74,10 @@ namespace UnitConverter
             catch
             {
                 All_Units = new List<Unit>();
+                All_Units.Add(new Unit());
             }
             // For testing only
-            Input = new VariableWithUnit(5, All_Units[0]);
+            input = new VariableWithUnit(1.0, All_Units[0]);
 
             //
 
@@ -102,25 +88,46 @@ namespace UnitConverter
 
         #region private methods
         /// <summary>
-        /// Calculate the Output based on Input, New Prefixes, and New Units.
+        /// Calculate the new Output when a new set of Unit is given.
         /// </summary>
-        //public void CalculateOutput(VariableWithUnit input, ILi   st<Unit> new_units, IList<string> new_prefixes)
-        public void CalculateOutput()
+        
+        private void CalculateNewOutput()
         {
             //if (new_units.Count != new_prefixes.Count)
             //    throw new ArgumentException("The number of new units and that of new prefixes do not match.");
             //Input = input;
             //New_Units = new_units;
             //New_Prefixes = new_prefixes;
-            if(New_Units != null && New_Prefixes != null)
+            if(New_Units != null)
             {
                 Results = new VariableWithUnit[New_Units.Count];
                 for (int index = 0; index < New_Units.Count; index++)
-                    Results[index] = Input.Convert(New_Units[index], New_Prefixes[index]);
-                foreach (VariableWithUnit var in Results)
-                    Console.WriteLine(var);
+                    Results[index] = Input.Convert(New_Units[index], "");
+                //foreach (VariableWithUnit var in Results)
+                //    Console.WriteLine(var);
             }
             
+        }
+
+
+        /// <summary>
+        /// Set the given unit as the input unit, then find all possible units that have the same measure.
+        /// Then calculate the results for all possible units.
+        /// </summary>
+        /// <param name="unit"></param>
+        private void updateInputUnit(Unit unit)
+        {
+            Input.Unit = unit;
+            // Found the correct unit. Now generate the list of new units based on measure
+            new_Units = new List<Unit>(); // Set the private field here so that we don't invoke CalculateOutput() before New_Prefixes are set.
+            foreach (Unit item in All_Units)
+            {
+                if (item.IsSameMeasure(unit) && item != unit)
+                {
+                    new_Units.Add(item);
+                }
+            }
+            CalculateNewOutput();
         }
 
         #endregion
@@ -136,30 +143,10 @@ namespace UnitConverter
         {
             if(inputUnitStr == "" || inputUnitStr == null)
             {
-                Input.Unit = number_Unit;
+                input.Unit = number_Unit;
                 return;
             }   
-            // This method will first check if the input string is a symbol of a unit.
-            // If it is, then this unit will be chosen as the InputUnit.
-            // Otherwise, the method will search for this string in all Unit.ToString to find the unit.
-            void updateInputUnit(Unit unit)
-            {
-                Input.Unit = unit;
-                // Found the correct unit. Now generate the list of new units based on measure
-                new_Units = new List<Unit>(); // Set the private field here so that we don't invoke CalculateOutput() before New_Prefixes are set.
-                foreach (Unit item in All_Units)
-                {
-                    if (item.IsSameMeasure(unit) && item != unit)
-                    {
-                        new_Units.Add(item);
-                    }
-                }
-                // Generate a string array and make them all empty
-                new_Prefixes = new string[New_Units.Count];
-                for (int index = 0; index < new_Prefixes.Count; index++)
-                    new_Prefixes[index] = "";
-                CalculateOutput();
-            }
+            
             foreach (Unit unit in All_Units)
             {
                 if (unit.UnitSymbol.ToLower() == inputUnitStr.ToLower())
@@ -177,8 +164,33 @@ namespace UnitConverter
                     return;
                 }
             }
-            Input.Unit = number_Unit;
+            input.Unit = number_Unit;
 
+        }
+
+        public void SetInputValue(double newValue)
+        {
+            if(input.Value != newValue)
+            {
+                input.Value = newValue;
+                for (int i = 0; i < Results.Length; i++)
+                {
+                    Results[i] = Input.Convert(Results[i].Unit, Results[i].Prefix);
+                }
+            }       
+        }
+            
+
+        public void SetInputPrefix(string newPrefix)
+        {
+            if(input.Prefix != newPrefix)
+            {
+                input.Prefix = newPrefix;
+                for (int i = 0; i < Results.Length; i++)
+                {
+                    Results[i] = Input.Convert(Results[i].Unit, Results[i].Prefix);
+                }
+            }
         }
 
         /// <summary>
@@ -200,11 +212,8 @@ namespace UnitConverter
         /// <param name="new_prefix">The string for the new prefix</param>
         public void UpdatePrefix(int index, string new_prefix)
         {
-            if (new_Prefixes[index] != new_prefix)
-            {
-                new_Prefixes[index] = new_prefix;
-                CalculateOutput();
-            }
+            if(index > -1 && index < Results.Length)
+                Results[index].Prefix = new_prefix;
         }
 
         public void Save()

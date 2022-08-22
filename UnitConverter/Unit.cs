@@ -130,7 +130,7 @@ namespace UnitConverter
             PowerOfTemperature == unit.PowerOfTemperature &&
             PowerOfTime == unit.PowerOfTime &&
             Multiplier != 0 &&
-            (Multiplier-unit.Multiplier) / Multiplier < 1e-9 &&
+            Math.Abs(Multiplier-unit.Multiplier) / Multiplier < 1e-9 &&
             Offset == unit.Offset;
 
         public static bool operator == (Unit left, Unit right) =>

@@ -8,11 +8,21 @@ namespace UnitConverter
     /// </summary>
     public class VariableWithUnit
     {
+        private string prefix;
+
         public double Value { get; set; }
 
         public Unit Unit { get; set; }
 
-        public string Prefix { get; set; }
+        public string Prefix
+        {
+            get => prefix;
+            set 
+            {
+                Value *= Prefixes.GetPrefixValue(prefix) / Prefixes.GetPrefixValue(value);
+                prefix = value;
+            }
+        }
 
 
 

@@ -13,7 +13,7 @@ namespace UnitConverter.MainWindow
     /// </summary>
     class MainWindowViewModel : INotifyPropertyChanged
     {
-        #region Publit properties exposed to view
+        #region Public properties exposed to view
 
         public double InputValue
         {
@@ -22,8 +22,7 @@ namespace UnitConverter.MainWindow
             {
                 if (value != model.Input.Value)
                 {
-                    model.Input.Value = value;
-                    model.CalculateOutput();
+                    model.SetInputValue(value);
                     //NotifyPropertyChanged();
                     NotifyPropertyChanged("Results");
                 }
@@ -37,8 +36,7 @@ namespace UnitConverter.MainWindow
             {
                 if (value != model.Input.Prefix)
                 {
-                    model.Input.Prefix = value;
-                    model.CalculateOutput();
+                    model.SetInputPrefix(value);
                     //NotifyPropertyChanged();
                     NotifyPropertyChanged("Results");
                 }
@@ -58,7 +56,7 @@ namespace UnitConverter.MainWindow
                 {
                     // Update the PossibleUnits list by performing a search
                     inputUnitStr = value;
-                    SearchPossibleUnits(inputUnitStr);
+                    SearchPossibleDisplayUnits(inputUnitStr);
                     // Also send it to model (Conversion) to update results
                     model.SetInputUnit(inputUnitStr);
                     NotifyPropertyChanged("Results");
@@ -83,12 +81,12 @@ namespace UnitConverter.MainWindow
         /// A list of possible units based on user input in unit_Input.
         /// 
         /// </summary>
-        public List<Unit> PossibleUnits
+        public List<Unit> PossibleDisplayUnits
         {
-            get => possibleUnits;
+            get => possibleDisplayUnits;
             set
             {
-                possibleUnits = value;
+                possibleDisplayUnits = value;
                 NotifyPropertyChanged();
             }
         }
@@ -96,12 +94,20 @@ namespace UnitConverter.MainWindow
 
         #endregion
 
+        #region Public methods exposed to view
+        public void UpdatePrefix(int index, string newPrefix)
+        {
+            model.UpdatePrefix(index, newPrefix);
+            NotifyPropertyChanged("Result");
+        }
+        #endregion
+
         #region Constructor
 
         public MainWindowViewModel()
         {
             model = new Conversion();
-            possibleUnits = model.All_Units;
+            possibleDisplayUnits = model.All_Units;
 
             // For testing only
             //Measure temperature = new Measure(0, 0, 0, 0, 1, 0, 0, "Temperature");
@@ -114,7 +120,7 @@ namespace UnitConverter.MainWindow
         #region private fields
 
         private Conversion model;
-        private List<Unit> possibleUnits = new List<Unit>();
+        private List<Unit> possibleDisplayUnits = new List<Unit>();
         private string inputUnitStr;
         private VariableWithUnit[] results;
         #endregion
@@ -124,19 +130,19 @@ namespace UnitConverter.MainWindow
         /// <summary>
         /// Update the PossibleUnits list when the input unit string changes
         /// </summary>
-        private void SearchPossibleUnits(string inputStr)
+        private void SearchPossibleDisplayUnits(string inputStr)
         {
             if (inputStr == "")
             {
-                possibleUnits = model.All_Units;
+                possibleDisplayUnits = model.All_Units;
             }
             else
             {
-                possibleUnits = new List<Unit>();
+                possibleDisplayUnits = new List<Unit>();
                 foreach (Unit unit in model.All_Units)
                 {
                     if (unit.ToString().ToLower().Contains(inputStr.ToLower()))
-                        possibleUnits.Add(unit);
+                        possibleDisplayUnits.Add(unit);
                 }
             }
             NotifyPropertyChanged("PossibleUnits");
