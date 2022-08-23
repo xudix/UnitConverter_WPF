@@ -66,18 +66,18 @@ namespace UnitConverter.MainWindow
             }
         }
 
-        public VariableWithUnit[] Results
-        {
-            get => model.Results;
-            set
-            {
-                if (value != results)
-                {
-                    results = value;
-                    NotifyPropertyChanged();
-                }
-            }
-        }
+        //public VariableWithUnit[] Results
+        //{
+        //    get => model.Results;
+        //    set
+        //    {
+        //        if (value != results)
+        //        {
+        //            results = value;
+        //            NotifyPropertyChanged();
+        //        }
+        //    }
+        //}
 
         public ObservableCollection<VariableWithUnit> ObservableResults
         {
@@ -115,6 +115,8 @@ namespace UnitConverter.MainWindow
         public MainWindowViewModel()
         {
             model = new Conversion();
+            ObservableResults = new ObservableCollection<VariableWithUnit>();
+            model.Results = ObservableResults;
             possibleDisplayUnits = model.All_Units;
 
             // For testing only

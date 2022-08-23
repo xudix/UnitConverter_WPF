@@ -29,7 +29,7 @@ namespace UnitConverter
             get => input;
         }
 
-        public VariableWithUnit[] Results { get; set; }
+        public IList<VariableWithUnit> Results { get; set; }
 
         /// <summary>
         /// All units that matches the measure of the input, except the unit of input.
@@ -81,7 +81,7 @@ namespace UnitConverter
             }
             // For testing only
             input = new VariableWithUnit(1.0, All_Units[0]);
-
+            Results = new List<VariableWithUnit>();
             //
 
         }
@@ -103,9 +103,9 @@ namespace UnitConverter
             //New_Prefixes = new_prefixes;
             if(New_Units != null)
             {
-                Results = new VariableWithUnit[New_Units.Count];
+                Results.Clear();
                 for (int index = 0; index < New_Units.Count; index++)
-                    Results[index] = Input.Convert(New_Units[index], New_Prefixes[index]);
+                    Results.Add(Input.Convert(New_Units[index], New_Prefixes[index]));
                 //foreach (VariableWithUnit var in Results)
                 //    Console.WriteLine(var);
             }
@@ -178,7 +178,7 @@ namespace UnitConverter
             if(input.Value != newValue)
             {
                 input.Value = newValue;
-                for (int i = 0; i < Results.Length; i++)
+                for (int i = 0; i < Results.Count; i++)
                 {
                     Results[i] = Input.Convert(Results[i].Unit, Results[i].Prefix);
                 }
@@ -192,7 +192,7 @@ namespace UnitConverter
             {
                 input.Prefix = newPrefix;
                 //Results = new VariableWithUnit[Results.Length]; ;
-                for (int i = 0; i < Results.Length; i++)
+                for (int i = 0; i < Results.Count; i++)
                 {
                     Results[i] = Input.Convert(Results[i].Unit, Results[i].Prefix);
                 }
@@ -218,7 +218,7 @@ namespace UnitConverter
         /// <param name="new_prefix">The string for the new prefix</param>
         public void UpdatePrefix(int index, string new_prefix)
         {
-            if(index > -1 && index < Results.Length)
+            if(index > -1 && index < Results.Count)
                 Results[index].Prefix = new_prefix;
         }
 
