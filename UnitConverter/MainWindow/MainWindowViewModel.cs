@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
 using System.Text;
@@ -38,7 +39,7 @@ namespace UnitConverter.MainWindow
                 {
                     model.SetInputPrefix(value);
                     //NotifyPropertyChanged();
-                    NotifyPropertyChanged("Results");
+                    NotifyPropertyChanged("Value");
                 }
             }
         }
@@ -59,7 +60,8 @@ namespace UnitConverter.MainWindow
                     SearchPossibleDisplayUnits(inputUnitStr);
                     // Also send it to model (Conversion) to update results
                     model.SetInputUnit(inputUnitStr);
-                    NotifyPropertyChanged("Results");
+                    //NotifyPropertyChanged("Results");
+                    ObservableResults = new ObservableCollection<VariableWithUnit>(model.Results);
                 }
             }
         }
@@ -75,6 +77,12 @@ namespace UnitConverter.MainWindow
                     NotifyPropertyChanged();
                 }
             }
+        }
+
+        public ObservableCollection<VariableWithUnit> ObservableResults
+        {
+            get;
+            set;
         }
 
         /// <summary>
@@ -98,7 +106,7 @@ namespace UnitConverter.MainWindow
         public void UpdatePrefix(int index, string newPrefix)
         {
             model.UpdatePrefix(index, newPrefix);
-            NotifyPropertyChanged("Result");
+            NotifyPropertyChanged("Results");
         }
         #endregion
 
@@ -145,7 +153,7 @@ namespace UnitConverter.MainWindow
                         possibleDisplayUnits.Add(unit);
                 }
             }
-            NotifyPropertyChanged("PossibleUnits");
+            NotifyPropertyChanged("PossibleDisplayUnits");
             //foreach (Unit unit in possibleUnits)
             //    Console.WriteLine(unit.ToString());
         }

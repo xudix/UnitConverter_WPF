@@ -14,15 +14,15 @@ namespace UnitConverter
 
         public Unit Unit { get; set; }
 
-        public string Prefix
-        {
-            get => prefix;
-            set 
-            {
-                Value *= Prefixes.GetPrefixValue(prefix) / Prefixes.GetPrefixValue(value);
-                prefix = value;
-            }
-        }
+        public string Prefix { get; set; }
+        //{
+        //    get => prefix;
+        //    set 
+        //    {
+        //        Value *= Prefixes.GetPrefixValue(prefix) / Prefixes.GetPrefixValue(value);
+        //        prefix = value;
+        //    }
+        //}
 
 
 
