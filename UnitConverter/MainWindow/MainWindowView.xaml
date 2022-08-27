@@ -38,10 +38,10 @@
                     <ComboBox x:Name="conversion_Unit_Input" Grid.Column="2" Grid.Row="1" Foreground="{DynamicResource {x:Static SystemColors.ControlTextBrushKey}}" VerticalContentAlignment="Stretch" Background="{x:Null}" 
                     IsEditable="True" Margin="5,0" Text="{Binding InputUnitStr}" ItemsSource="{Binding PossibleDisplayUnits}" PreviewTextInput="Unit_Input_PreviewTextInput" HorizontalContentAlignment="Stretch"/>
                 </Grid>
-                <DataGrid Margin="5,10" ItemsSource="{Binding Results, Mode=TwoWay}" AutoGenerateColumns="False" HorizontalContentAlignment="Center" VerticalContentAlignment="Stretch" HeadersVisibility="None" SelectionChanged="Result_Prefix_Changed" CellEditEnding="Result_Prefix_Changed">
+                <DataGrid Margin="5,10" ItemsSource="{Binding ObservableResults, Mode=TwoWay}" AutoGenerateColumns="False" HorizontalContentAlignment="Center" VerticalContentAlignment="Stretch" HeadersVisibility="None" SelectionChanged="Result_Prefix_Changed" CellEditEnding="Result_Prefix_Changed">
                     <DataGrid.Columns>
-                        <DataGridTextColumn Binding="{Binding Value, NotifyOnSourceUpdated=True, StringFormat=\{0:F4\}}" ClipboardContentBinding="{x:Null}" CanUserResize="False" Width="*" />
-                        <DataGridComboBoxColumn ClipboardContentBinding="{x:Null}" SelectedValueBinding="{x:Null}" SelectedItemBinding="{x:Null}" TextBinding="{Binding Results.Prefix, Mode=TwoWay}" 
+                        <DataGridTextColumn Binding="{Binding Value, NotifyOnSourceUpdated=True, StringFormat=\{0:G6\}}" ClipboardContentBinding="{x:Null}" CanUserResize="False" Width="*" />
+                        <DataGridComboBoxColumn ClipboardContentBinding="{x:Null}" SelectedItemBinding="{Binding Prefix}" 
                                         ItemsSource="{Binding Mode=OneWay, Source={StaticResource preFixNames}}" CanUserResize="False" MinWidth="50" SelectedValuePath=""/>
                         <DataGridTextColumn Binding="{Binding Unit}" ClipboardContentBinding="{x:Null}" CanUserResize="False" Width="*"/>
                     </DataGrid.Columns>

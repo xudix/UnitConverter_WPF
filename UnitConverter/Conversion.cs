@@ -216,10 +216,10 @@ namespace UnitConverter
         /// </summary>
         /// <param name="index">The index of the updated prefix</param>
         /// <param name="new_prefix">The string for the new prefix</param>
-        public void UpdatePrefix(int index, string new_prefix)
+        public void UpdateResultPrefix(int index, string new_prefix)
         {
-            if(index > -1 && index < Results.Count)
-                Results[index].Prefix = new_prefix;
+            if (index > -1 && index < Results.Count && new_prefix != New_Prefixes[index])
+                Results[index] = Input.Convert(Results[index].Unit, New_Prefixes[index] = new_prefix);
         }
 
         public void Save()

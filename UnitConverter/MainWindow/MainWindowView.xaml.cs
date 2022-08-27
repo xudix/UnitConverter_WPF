@@ -33,7 +33,7 @@ namespace UnitConverter
 
         private void Result_Prefix_Changed(object sender, DataGridCellEditEndingEventArgs e)
         {
-            Console.WriteLine(e);
+            //Console.WriteLine(e);
         }
 
         private void Result_Prefix_Changed(object sender, TextCompositionEventArgs e)

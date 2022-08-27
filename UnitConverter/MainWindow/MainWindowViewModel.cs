@@ -24,8 +24,7 @@ namespace UnitConverter.MainWindow
                 if (value != model.Input.Value)
                 {
                     model.SetInputValue(value);
-                    //NotifyPropertyChanged();
-                    NotifyPropertyChanged("Results");
+                    //NotifyPropertyChanged("ObservableResults");
                 }
             }
         }
@@ -38,8 +37,7 @@ namespace UnitConverter.MainWindow
                 if (value != model.Input.Prefix)
                 {
                     model.SetInputPrefix(value);
-                    //NotifyPropertyChanged();
-                    NotifyPropertyChanged("Value");
+                    //NotifyPropertyChanged("ObservableResults");
                 }
             }
         }
@@ -60,8 +58,8 @@ namespace UnitConverter.MainWindow
                     SearchPossibleDisplayUnits(inputUnitStr);
                     // Also send it to model (Conversion) to update results
                     model.SetInputUnit(inputUnitStr);
-                    //NotifyPropertyChanged("Results");
-                    ObservableResults = new ObservableCollection<VariableWithUnit>(model.Results);
+                    //NotifyPropertyChanged("ObservableResults");
+                    
                 }
             }
         }
@@ -105,8 +103,8 @@ namespace UnitConverter.MainWindow
         #region Public methods exposed to view
         public void UpdatePrefix(int index, string newPrefix)
         {
-            model.UpdatePrefix(index, newPrefix);
-            NotifyPropertyChanged("Results");
+            model.UpdateResultPrefix(index, newPrefix);
+            //NotifyPropertyChanged("Results");
         }
         #endregion
 
