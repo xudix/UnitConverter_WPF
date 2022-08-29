@@ -5,6 +5,8 @@ using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Input;
+using System.Windows;
 
 namespace UnitConverter.MainWindow
 {
@@ -59,11 +61,10 @@ namespace UnitConverter.MainWindow
                     // Also send it to model (Conversion) to update results
                     model.SetInputUnit(inputUnitStr);
                     //NotifyPropertyChanged("ObservableResults");
-                    
+
                 }
             }
         }
-
         //public VariableWithUnit[] Results
         //{
         //    get => model.Results;
@@ -87,7 +88,7 @@ namespace UnitConverter.MainWindow
         /// A list of possible units based on user input in unit_Input.
         /// 
         /// </summary>
-        public List<Unit> PossibleDisplayUnits
+        public IList<Unit> PossibleDisplayUnits
         {
             get => possibleDisplayUnits;
             set
@@ -96,6 +97,31 @@ namespace UnitConverter.MainWindow
                 NotifyPropertyChanged();
             }
         }
+
+        public Unit EditTabUnit
+        { 
+            get => editTabUnit;
+            set
+            {
+                editTabUnit = value;
+                NotifyPropertyChanged();
+            }
+        }
+        public string EditTabExpression { get => editTabExpression; set => editTabExpression = value; }
+
+        public IList<Unit> All_Units
+        {
+            get => model.All_Units;
+            set
+            {
+                model.All_Units = value;
+                NotifyPropertyChanged();
+            }
+        }
+
+        private Unit editTabUnit;
+
+        private String editTabExpression;
 
 
         #endregion
@@ -106,6 +132,66 @@ namespace UnitConverter.MainWindow
             model.UpdateResultPrefix(index, newPrefix);
             //NotifyPropertyChanged("Results");
         }
+
+        internal void UpdateUnitToEdit(Unit unit)
+        {
+            if(unit != null)
+            {
+                EditTabUnit = new Unit(unit);
+                oldUnit = unit;
+            }
+        }
+
+
+        #endregion
+
+        #region Commands exposed to view
+
+        public ICommand AddUnitCommand
+        {
+            get => new RelayCommand(() =>
+                {
+                    model.AddNewUnit(EditTabUnit);
+                    MessageBox.Show(string.Format("New unit {0} added!", EditTabUnit));
+                    EditTabUnit = new Unit();
+                }
+            );
+        }
+
+        public ICommand ModifyExistingUnitCommand
+        {
+            get => new RelayCommand(() =>
+                {
+                    model.ModifyExistingUnit(oldUnit, EditTabUnit);
+                    MessageBox.Show(string.Format("Unit {0} modified!", EditTabUnit));
+                    EditTabUnit = new Unit();
+                }
+            );
+        }
+
+        public ICommand DeleteUnitCommand
+        {
+            get => new RelayCommand(() => 
+                { 
+                    model.DeleteUnit(oldUnit);
+                    MessageBox.Show(string.Format("Unit {0} Deleted!", oldUnit));
+                    NotifyPropertyChanged("All_Units");
+                    EditTabUnit = new Unit();
+                }
+            );
+        }
+
+        public ICommand ClearEditUnitCommand
+        {
+            get => new RelayCommand(() =>
+            {
+                EditTabUnit = new Unit();
+            }
+            );
+        }
+
+
+
         #endregion
 
         #region Constructor
@@ -116,6 +202,7 @@ namespace UnitConverter.MainWindow
             ObservableResults = new ObservableCollection<VariableWithUnit>();
             model.Results = ObservableResults;
             possibleDisplayUnits = model.All_Units;
+            editTabUnit = new Unit();
 
             // For testing only
             //Measure temperature = new Measure(0, 0, 0, 0, 1, 0, 0, "Temperature");
@@ -128,9 +215,13 @@ namespace UnitConverter.MainWindow
         #region private fields
 
         private Conversion model;
-        private List<Unit> possibleDisplayUnits = new List<Unit>();
+        private IList<Unit> possibleDisplayUnits = new List<Unit>();
         private string inputUnitStr;
         private VariableWithUnit[] results;
+        /// <summary>
+        /// Saves the old unit to be updated
+        /// </summary>
+        private Unit oldUnit;
         #endregion
 
         #region private methods

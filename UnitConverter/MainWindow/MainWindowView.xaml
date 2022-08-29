@@ -32,13 +32,13 @@
                     <Label Content="Value" HorizontalAlignment="Center" Margin="0" Foreground="White" VerticalContentAlignment="Stretch" HorizontalContentAlignment="Center"/>
                     <Label x:Name="prefix_Label" Grid.Column="1" Content="Prefix" HorizontalAlignment="Center" Margin="0" Foreground="White" VerticalContentAlignment="Stretch" HorizontalContentAlignment="Center"/>
                     <Label Grid.Column="2" Content="Unit" HorizontalAlignment="Center" Margin="0" Foreground="White" VerticalContentAlignment="Stretch" HorizontalContentAlignment="Center"/>
-                    <TextBox x:Name="conversion_Value_Input" Grid.Row="1" Padding="5,0" Margin="5,0" BorderBrush="White" TextAlignment="Right" Text="{Binding InputValue, Mode=TwoWay}" />
+                    <TextBox x:Name="conversion_Value_Input" Grid.Row="1" Padding="5,0" Margin="5,0" TextAlignment="Right" Text="{Binding InputValue, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" BorderBrush="{x:Null}" InputScope="Number" />
                     <ComboBox x:Name="conversion_Prefix_Input" Grid.Column="1" Grid.Row="1" VerticalContentAlignment="Stretch" HorizontalContentAlignment="Center" Background="{x:Null}" Margin="5,0" 
-                      ItemsSource="{Binding Mode=OneWay, Source={StaticResource preFixNames}}" Text="{Binding InputPrefix}" Foreground="{DynamicResource {x:Static SystemColors.ControlTextBrushKey}}" IsReadOnly="True" MinWidth="40"/>
-                    <ComboBox x:Name="conversion_Unit_Input" Grid.Column="2" Grid.Row="1" Foreground="{DynamicResource {x:Static SystemColors.ControlTextBrushKey}}" VerticalContentAlignment="Stretch" Background="{x:Null}" 
-                    IsEditable="True" Margin="5,0" Text="{Binding InputUnitStr}" ItemsSource="{Binding PossibleDisplayUnits}" PreviewTextInput="Unit_Input_PreviewTextInput" HorizontalContentAlignment="Stretch"/>
+                      ItemsSource="{Binding Mode=OneWay, Source={StaticResource preFixNames}}" Text="{Binding InputPrefix}" Foreground="Black" IsReadOnly="True" MinWidth="40" BorderBrush="{x:Null}"/>
+                    <ComboBox x:Name="conversion_Unit_Input" Grid.Column="2" Grid.Row="1" Foreground="Black" VerticalContentAlignment="Stretch" Background="{x:Null}" 
+                    IsEditable="True" Margin="5,0" Text="{Binding InputUnitStr}" ItemsSource="{Binding PossibleDisplayUnits}" PreviewTextInput="Unit_Input_PreviewTextInput" HorizontalContentAlignment="Stretch" BorderBrush="{x:Null}"/>
                 </Grid>
-                <DataGrid Margin="5,10" ItemsSource="{Binding ObservableResults, Mode=TwoWay}" AutoGenerateColumns="False" HorizontalContentAlignment="Center" VerticalContentAlignment="Stretch" HeadersVisibility="None" SelectionChanged="Result_Prefix_Changed" CellEditEnding="Result_Prefix_Changed">
+                <DataGrid Margin="5,10" ItemsSource="{Binding ObservableResults, Mode=TwoWay}" AutoGenerateColumns="False" HorizontalContentAlignment="Center" VerticalContentAlignment="Stretch" HeadersVisibility="None" SelectionChanged="Result_Prefix_Changed" SelectedCellsChanged="Result_Selected_Cell_Changed">
                     <DataGrid.Columns>
                         <DataGridTextColumn Binding="{Binding Value, NotifyOnSourceUpdated=True, StringFormat=\{0:G6\}}" ClipboardContentBinding="{x:Null}" CanUserResize="False" Width="*" />
                         <DataGridComboBoxColumn ClipboardContentBinding="{x:Null}" SelectedItemBinding="{Binding Prefix}" 
@@ -51,10 +51,86 @@
 
         </TabItem>
         <TabItem Header="Edit Units">
-            <StackPanel>
+            <StackPanel VerticalAlignment="Stretch">
+                
                 <Grid Background="Black">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition/>
+                    </Grid.ColumnDefinitions>
+                    <Label Grid.Column="0" Grid.Row="0" Content="Select from Existing" Foreground="White"/>
+                    <ComboBox x:Name="edit_Select_Existing" Grid.Column="1" Grid.Row="0" IsEditable="True" HorizontalAlignment="Stretch" VerticalAlignment="Center" ItemsSource="{Binding All_Units}" SelectionChanged="Update_Unit_To_Edit"/>
+                    <Label Grid.Column="0" Grid.Row="1" Content="Measure" Foreground="White"/>
+                    <TextBox x:Name="edit_Measure_Input" Grid.Column="1" Grid.Row="1" Text="{Binding EditTabUnit.MeasureName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" HorizontalAlignment="Stretch" VerticalAlignment="Center"/>
+                    <Label Grid.Column="0" Grid.Row="2" Content="Unit Symbol" Foreground="White"/>
+                    <TextBox x:Name="edit_Symbol_Input" Grid.Column="1" Grid.Row="2"  HorizontalAlignment="Stretch" VerticalAlignment="Center" Text="{Binding EditTabUnit.UnitSymbol, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                    <Label Grid.Column="0" Grid.Row="3" Content="Unit Name" Foreground="White"/>
+                    <TextBox x:Name="edit_Unit_Name_Input" Grid.Column="1" Grid.Row="3" Text="{Binding EditTabUnit.UnitName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"  HorizontalAlignment="Stretch" VerticalAlignment="Center" />
+                    <Label Grid.Column="0" Grid.Row="4" Content="Expression" Foreground="White"/>
+                    <TextBox x:Name="edit_Exp_Input" Grid.Column="1" Grid.Row="4" Text="{Binding EditTabExpression}" HorizontalAlignment="Stretch" VerticalAlignment="Center"/>
+                </Grid>
+                <Label Content="Definition Parameters:" Foreground="White" HorizontalAlignment="Center"/>
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition/>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition/>
+                    </Grid.ColumnDefinitions>
+                    <Label Grid.Column="0" Grid.Row="0" Content="Multiplier" Foreground="White"/>
+                    <TextBox Grid.Column="1" Grid.Row="0" Text="{Binding EditTabUnit.Multiplier, Mode=TwoWay}" HorizontalAlignment="Stretch" VerticalAlignment="Center"/>
+                    <Label Grid.Column="2" Grid.Row="0" Content="Offset" Foreground="White"/>
+                    <TextBox Grid.Column="3" Grid.Row="0" Text="{Binding EditTabUnit.Offset, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" HorizontalAlignment="Stretch" VerticalAlignment="Center" InputScope="Number"/>
+                    <Label Grid.Row="1" Content="Powers of base quantity" Foreground="White" Grid.ColumnSpan="4"/>
+
+                    <Label Grid.Column="0" Grid.Row="2" Content="Time" Foreground="White"/>
+                    <TextBox Grid.Column="1" Grid.Row="2" Text="{Binding EditTabUnit.PowerOfTime, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" HorizontalAlignment="Stretch" VerticalAlignment="Center" InputScope="Number"/>
+                    <Label Grid.Column="2" Grid.Row="2" Content="Length" Foreground="White"/>
+                    <TextBox Grid.Column="3" Grid.Row="2" Text="{Binding EditTabUnit.PowerOfLength, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" HorizontalAlignment="Stretch" VerticalAlignment="Center" InputScope="Number"/>
+
+                    <Label Grid.Column="0" Grid.Row="3" Content="Mass" Foreground="White"/>
+                    <TextBox Grid.Column="1" Grid.Row="3" Text="{Binding EditTabUnit.PowerOfMass, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" HorizontalAlignment="Stretch" VerticalAlignment="Center" InputScope="Number"/>
+                    <Label Grid.Column="2" Grid.Row="3" Content="Temperature" Foreground="White"/>
+                    <TextBox Grid.Column="3" Grid.Row="3" Text="{Binding EditTabUnit.PowerOfTemperature, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" HorizontalAlignment="Stretch" VerticalAlignment="Center" InputScope="Number"/>
+                    <Label Grid.Column="0" Grid.Row="4" Content="Amount of Substance" Foreground="White"/>
+                    <TextBox Grid.Column="1" Grid.Row="4" Text="{Binding EditTabUnit.PowerOfSubstanceAmount, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" HorizontalAlignment="Stretch" VerticalAlignment="Center" InputScope="Number"/>
+                    <Label Grid.Column="2" Grid.Row="4" Content="Electric Current" Foreground="White"/>
+                    <TextBox Grid.Column="3" Grid.Row="4" Text="{Binding EditTabUnit.PowerOfCurrent, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" HorizontalAlignment="Stretch" VerticalAlignment="Center" InputScope="Number"/>
+                    <Label Grid.Column="0" Grid.Row="5" Content="Luminous Intensity" Foreground="White"/>
+                    <TextBox Grid.Column="1" Grid.Row="5" Text="{Binding EditTabUnit.PowerOfLuminousIntensity, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" HorizontalAlignment="Stretch" VerticalAlignment="Center" InputScope="Number"/>
 
                 </Grid>
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition/>
+                        <ColumnDefinition/>
+                        <ColumnDefinition/>
+                        <ColumnDefinition/>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition/>
+                    </Grid.RowDefinitions>
+                    <Button Grid.Column="0" Background="Black" Foreground="White" Content="Add Unit" Command="{Binding AddUnitCommand, Mode=OneWay}" />
+                    <Button Grid.Column="1" Background="Black" Foreground="White" Content="Modify Unit" Command="{Binding ModifyExistingUnitCommand, Mode=OneWay}"/>
+                    <Button Grid.Column="2" Background="Black" Foreground="White" Content="Delete Unit" Command="{Binding DeleteUnitCommand, Mode=OneWay}"/>
+                    <Button Grid.Column="3" Background="Black" Foreground="White" Content="Clear Tab" Command="{Binding ClearEditUnitCommand, Mode=OneWay}"/>
+                </Grid>
+
             </StackPanel>
         </TabItem>
     </TabControl>

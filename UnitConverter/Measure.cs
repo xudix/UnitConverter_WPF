@@ -116,6 +116,19 @@ namespace UnitConverter
             PowerOfTime = 0;
             MeasureName = "NUMBER";
         }
+
+        public Measure(Measure measure)
+        {
+            PowerOfLength = measure.PowerOfLength;
+            PowerOfCurrent = measure.PowerOfCurrent;
+            PowerOfTime = measure.PowerOfTime;
+            PowerOfTemperature = measure.PowerOfTemperature;
+            PowerOfSubstanceAmount = measure.PowerOfSubstanceAmount;
+            PowerOfMass = measure.PowerOfMass;
+            PowerOfLuminousIntensity = measure.PowerOfLuminousIntensity;
+            MeasureName = measure.MeasureName;
+        }
+
         #endregion
 
         #region Public Methods

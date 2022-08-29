@@ -93,6 +93,27 @@ namespace UnitConverter
             Offset = 0.0;
         }
 
+        /// <summary>
+        /// Construct a new Unit as a duplicate of the input.
+        /// </summary>
+        /// <param name="unit"></param>
+        public Unit(Unit unit)
+        {
+            PowerOfCurrent = unit.PowerOfCurrent;
+            PowerOfTime = unit.PowerOfTime;
+            PowerOfTemperature = unit.PowerOfTemperature;
+            PowerOfSubstanceAmount = unit.PowerOfSubstanceAmount;
+            PowerOfLength = unit.PowerOfLength;
+            PowerOfMass = unit.PowerOfMass;
+            PowerOfLuminousIntensity = unit.PowerOfLuminousIntensity;
+            Multiplier = unit.Multiplier;
+            Offset = unit.Offset;
+            MeasureName = unit.MeasureName;
+            UnitName = unit.UnitName;
+            UnitSymbol = unit.UnitSymbol;
+
+        }
+
         #endregion
 
         #region Public Methods
@@ -122,6 +143,7 @@ namespace UnitConverter
             DevideUnits(left, right);
 
         public bool Equals(Unit unit) =>
+            !object.Equals(unit, null)  &&
             PowerOfCurrent == unit.PowerOfCurrent &&
             PowerOfLength == unit.PowerOfLength &&
             PowerOfLuminousIntensity == unit.PowerOfLuminousIntensity &&
@@ -130,14 +152,16 @@ namespace UnitConverter
             PowerOfTemperature == unit.PowerOfTemperature &&
             PowerOfTime == unit.PowerOfTime &&
             Multiplier != 0 &&
-            Math.Abs(Multiplier-unit.Multiplier) / Multiplier < 1e-9 &&
-            Offset == unit.Offset;
+            Math.Abs(Multiplier - unit.Multiplier) / Multiplier < 1e-9 &&
+            (Offset == unit.Offset ||
+            (Offset != 0 && Math.Abs(Offset - unit.Offset) / Offset < 1e-9) ||
+            (unit.Offset != 0 && Math.Abs(Offset - unit.Offset) / unit.Offset < 1e-9));
 
-        public static bool operator == (Unit left, Unit right) =>
-            left.Equals(right);
+        public static bool operator ==(Unit left, Unit right) =>
+            object.Equals(left, null) ? object.Equals(right, null):left.Equals(right);
 
         public static bool operator !=(Unit left, Unit right) =>
-            !left.Equals(right);
+            object.Equals(left, null)? !object.Equals(right, null):!left.Equals(right);
 
         public static bool IsSameUnit(Unit unit1, Unit unit2) =>
             unit1.Equals(unit2);

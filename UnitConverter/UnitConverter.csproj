@@ -66,6 +66,7 @@
     </Compile>
     <Compile Include="Conversion.cs" />
     <Compile Include="ListOfUnits.cs" />
+    <Compile Include="RelayCommand.cs" />
     <Compile Include="Unit.cs" />
     <Compile Include="VariableWithUnit.cs" />
   </ItemGroup>

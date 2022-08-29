@@ -50,7 +50,7 @@ namespace UnitConverter
         /// List of all available units. This list will be serialized when the Save() method is called.
         /// The list will be reloaded from file when the program starts.
         /// </summary>
-        public List<Unit> All_Units { get; set; }
+        public IList<Unit> All_Units { get; set; }
         public IList<string> New_Prefixes { get => new_Prefixes; set => new_Prefixes = value; }
 
         #endregion
@@ -207,7 +207,32 @@ namespace UnitConverter
         {
             All_Units.Add(newUnit);
             Save();
+        }
 
+        /// <summary>
+        /// Delete a unit from the collection of units
+        /// </summary>
+        /// <param name="unitToDelete"></param>
+        public void DeleteUnit(Unit unitToDelete)
+        {
+            All_Units.Remove(unitToDelete);
+            Save();
+        }
+
+        /// <summary>
+        /// Update an existing Unit to newUnit
+        /// </summary>
+        /// <param name="oldUnit"></param>
+        /// <param name="newUnit"></param>
+        public void ModifyExistingUnit(Unit oldUnit, Unit newUnit)
+        {
+            for(int i = 0; i < All_Units.Count; i++)
+                if(All_Units[i] == oldUnit)
+                {
+                    All_Units[i] = newUnit;
+                    Save();
+                    return;
+                }
         }
 
 
@@ -224,10 +249,15 @@ namespace UnitConverter
 
         public void Save()
         {
-            System.Xml.Serialization.XmlSerializer xmlWriter = new System.Xml.Serialization.XmlSerializer(typeof(List<Unit>));
-            System.IO.FileStream fileStream = System.IO.File.Create(unitsFile);
-            xmlWriter.Serialize(fileStream, All_Units);
-            fileStream.Close();
+            Unit[] unitArray = All_Units.ToArray();
+            Array.Sort(unitArray,(Unit x, Unit y)=> x.UnitSymbol.CompareTo(y.UnitSymbol));
+            Type allUnitType = All_Units.GetType();
+            All_Units = Activator.CreateInstance(allUnitType, new object[] { unitArray }) as IList<Unit>;
+            System.Xml.Serialization.XmlSerializer xmlWriter = new System.Xml.Serialization.XmlSerializer(All_Units.GetType());
+            using(System.IO.FileStream fileStream = System.IO.File.Create(unitsFile))
+            {
+                xmlWriter.Serialize(fileStream, All_Units);
+            }
         }
 
 
