@@ -88,13 +88,17 @@ namespace UnitConverter.MainWindow
         /// A list of possible units based on user input in unit_Input.
         /// 
         /// </summary>
-        public IList<Unit> PossibleDisplayUnits
+        public ObservableWrapper<Unit> PossibleDisplayUnits
         {
             get => possibleDisplayUnits;
             set
             {
-                possibleDisplayUnits = value;
-                NotifyPropertyChanged();
+                if(possibleDisplayUnits != value)
+                {
+                    possibleDisplayUnits = value;
+                    PossibleDisplayUnits.RaiseCollectionChangedEvent();
+                }
+                
             }
         }
 
@@ -107,19 +111,25 @@ namespace UnitConverter.MainWindow
                 NotifyPropertyChanged();
             }
         }
+
+        private Unit editTabUnit;
         public string EditTabExpression { get => editTabExpression; set => editTabExpression = value; }
 
-        public IList<Unit> All_Units
-        {
-            get => model.All_Units;
-            set
+        public ObservableWrapper<Unit> All_Units 
+        { 
+            get => all_Units;
+            set 
             {
-                model.All_Units = value;
-                NotifyPropertyChanged();
+                if(all_Units != value)
+                {
+                    all_Units = value;
+                    All_Units.RaiseCollectionChangedEvent();
+                    //NotifyPropertyChanged();
+                }
             }
         }
 
-        private Unit editTabUnit;
+        private ObservableWrapper<Unit> all_Units;
 
         private String editTabExpression;
 
@@ -155,7 +165,7 @@ namespace UnitConverter.MainWindow
                     {
                         MessageBox.Show(string.Format("New unit {0} added!", EditTabUnit));
                         EditTabUnit = new Unit();
-                        NotifyPropertyChanged("All_Units");
+                        All_Units.RaiseCollectionChangedEvent();
                     }
                     else
                         MessageBox.Show(string.Format("Fail to add unit {0}. Unit {0} already exist.", EditTabUnit.UnitSymbol));
@@ -181,7 +191,7 @@ namespace UnitConverter.MainWindow
                 { 
                     model.DeleteUnit(oldUnit);
                     MessageBox.Show(string.Format("Unit {0} Deleted!", oldUnit));
-                    NotifyPropertyChanged("All_Units");
+                    All_Units.RaiseCollectionChangedEvent();
                     EditTabUnit = new Unit();
                 }
             );
@@ -206,8 +216,9 @@ namespace UnitConverter.MainWindow
         {
             model = new Conversion();
             ObservableResults = new ObservableCollection<VariableWithUnit>();
+            All_Units = new ObservableWrapper<Unit>(model.All_Units);
             model.Results = ObservableResults;
-            possibleDisplayUnits = model.All_Units;
+            PossibleDisplayUnits = new ObservableWrapper<Unit>(model.All_Units);
             editTabUnit = new Unit();
 
             // For testing only
@@ -221,7 +232,7 @@ namespace UnitConverter.MainWindow
         #region private fields
 
         private Conversion model;
-        private IList<Unit> possibleDisplayUnits = new List<Unit>();
+        private ObservableWrapper<Unit> possibleDisplayUnits;
         private string inputUnitStr;
         private VariableWithUnit[] results;
         /// <summary>
@@ -239,20 +250,19 @@ namespace UnitConverter.MainWindow
         {
             if (inputStr == "")
             {
-                possibleDisplayUnits = model.All_Units;
+                PossibleDisplayUnits = new ObservableWrapper<Unit>(model.All_Units);
             }
             else
             {
-                possibleDisplayUnits = new List<Unit>();
+                List<Unit> searchResults = new List<Unit>();
                 foreach (Unit unit in model.All_Units)
                 {
                     if (unit.ToString().ToLower().Contains(inputStr.ToLower()))
-                        possibleDisplayUnits.Add(unit);
+                        searchResults.Add(unit);
                 }
+                PossibleDisplayUnits = new ObservableWrapper<Unit>(searchResults);
             }
             NotifyPropertyChanged("PossibleDisplayUnits");
-            //foreach (Unit unit in possibleUnits)
-            //    Console.WriteLine(unit.ToString());
         }
 
         #endregion

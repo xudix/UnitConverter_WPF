@@ -36,7 +36,7 @@
                     <ComboBox x:Name="conversion_Prefix_Input" Grid.Column="1" Grid.Row="1" VerticalContentAlignment="Stretch" HorizontalContentAlignment="Center" Background="{x:Null}" Margin="5,0" 
                       ItemsSource="{Binding Mode=OneWay, Source={StaticResource preFixNames}}" Text="{Binding InputPrefix}" Foreground="Black" IsReadOnly="True" MinWidth="40" BorderBrush="{x:Null}"/>
                     <ComboBox x:Name="conversion_Unit_Input" Grid.Column="2" Grid.Row="1" Foreground="Black" VerticalContentAlignment="Stretch" Background="{x:Null}" 
-                    IsEditable="True" Margin="5,0" Text="{Binding InputUnitStr}" ItemsSource="{Binding PossibleDisplayUnits}" PreviewTextInput="Unit_Input_PreviewTextInput" HorizontalContentAlignment="Stretch" BorderBrush="{x:Null}"/>
+                    IsEditable="True" Margin="5,0" Text="{Binding InputUnitStr}" ItemsSource="{Binding PossibleDisplayUnits}" PreviewTextInput="Unit_Input_PreviewTextInput" HorizontalContentAlignment="Stretch" BorderBrush="{x:Null}" IsTextSearchEnabled="False"/>
                 </Grid>
                 <DataGrid Margin="5,10" ItemsSource="{Binding ObservableResults, Mode=TwoWay}" AutoGenerateColumns="False" HorizontalContentAlignment="Center" VerticalContentAlignment="Stretch" HeadersVisibility="None" SelectionChanged="Result_Prefix_Changed" SelectedCellsChanged="Result_Selected_Cell_Changed">
                     <DataGrid.Columns>
@@ -66,7 +66,7 @@
                         <ColumnDefinition/>
                     </Grid.ColumnDefinitions>
                     <Label Grid.Column="0" Grid.Row="0" Content="Select from Existing" Foreground="White"/>
-                    <ComboBox x:Name="edit_Select_Existing" Grid.Column="1" Grid.Row="0" IsEditable="True" HorizontalAlignment="Stretch" VerticalAlignment="Center" ItemsSource="{Binding All_Units}" SelectionChanged="Update_Unit_To_Edit"/>
+                    <ComboBox x:Name="edit_Select_Existing" Grid.Column="1" Grid.Row="0" IsEditable="True" HorizontalAlignment="Stretch" VerticalAlignment="Center" ItemsSource="{Binding All_Units}" SelectionChanged="Update_Unit_To_Edit" IsTextSearchEnabled="False" PreviewTextInput="Edit_Existing_Input_Changed"/>
                     <Label Grid.Column="0" Grid.Row="1" Content="Measure" Foreground="White"/>
                     <TextBox x:Name="edit_Measure_Input" Grid.Column="1" Grid.Row="1" Text="{Binding EditTabUnit.MeasureName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" HorizontalAlignment="Stretch" VerticalAlignment="Center"/>
                     <Label Grid.Column="0" Grid.Row="2" Content="Unit Symbol" Foreground="White"/>

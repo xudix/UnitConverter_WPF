@@ -31,15 +31,7 @@ namespace UnitConverter
         private void Unit_Input_PreviewTextInput(object sender, TextCompositionEventArgs e) =>
             ((ComboBox)sender).IsDropDownOpen = true;
 
-        private void Result_Prefix_Changed(object sender, DataGridCellEditEndingEventArgs e)
-        {
-            //Console.WriteLine(e);
-        }
 
-        private void Result_Prefix_Changed(object sender, TextCompositionEventArgs e)
-        {
-            
-        }
 
         private void Result_Prefix_Changed(object sender, SelectionChangedEventArgs e)
         {
@@ -58,5 +50,8 @@ namespace UnitConverter
         {
             viewModel.UpdateUnitToEdit((sender as ComboBox).SelectedItem as Unit);
         }
+
+        private void Edit_Existing_Input_Changed(object sender, TextCompositionEventArgs e) =>
+            ((ComboBox)sender).IsDropDownOpen = true;
     }
 }
