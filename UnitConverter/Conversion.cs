@@ -5,7 +5,7 @@ using System.Data;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-
+using System.Windows;
 
 namespace UnitConverter
 {
@@ -73,6 +73,7 @@ namespace UnitConverter
                     System.Xml.Serialization.XmlSerializer xmlReader = new System.Xml.Serialization.XmlSerializer(typeof(List<Unit>));
                     All_Units = (List<Unit>)xmlReader.Deserialize(streamReader);
                 }
+                All_Units.OrderBy((Unit unit) => unit.UnitSymbol);
             }
             catch
             {
@@ -203,10 +204,26 @@ namespace UnitConverter
         /// Add a new unit to the list of all units.
         /// </summary>
         /// <param name="newUnit">New unit being added</param>
-        public void AddNewUnit(Unit newUnit)
+        /// <returns>True if unit sucessfully added. False if new unit already exist.</returns>
+        public bool AddNewUnit(Unit newUnit)
         {
-            All_Units.Add(newUnit);
+            //Do a binary search to determine the location of the new item
+            int lo = 0, hi = All_Units.Count;
+            int mid;
+            while(lo < hi)
+            {
+                mid = lo + ((hi - lo)>>1);
+                if (All_Units[mid].UnitSymbol.CompareTo(newUnit.UnitSymbol) > 0)
+                    hi = mid;
+                else
+                    lo = mid + 1;
+            }
+            if (All_Units[lo-1].UnitSymbol.CompareTo(newUnit.UnitSymbol) == 0)
+                return false;
+            else
+                All_Units.Insert(hi, newUnit);
             Save();
+            return true;
         }
 
         /// <summary>
@@ -226,13 +243,13 @@ namespace UnitConverter
         /// <param name="newUnit"></param>
         public void ModifyExistingUnit(Unit oldUnit, Unit newUnit)
         {
-            for(int i = 0; i < All_Units.Count; i++)
-                if(All_Units[i] == oldUnit)
-                {
-                    All_Units[i] = newUnit;
-                    Save();
-                    return;
-                }
+            if (oldUnit.UnitSymbol == newUnit.UnitSymbol)
+                All_Units[All_Units.IndexOf(oldUnit)] = newUnit;
+            else
+            {
+                All_Units.Remove(oldUnit);
+                AddNewUnit(newUnit);
+            }
         }
 
 
@@ -249,10 +266,11 @@ namespace UnitConverter
 
         public void Save()
         {
-            Unit[] unitArray = All_Units.ToArray();
-            Array.Sort(unitArray,(Unit x, Unit y)=> x.UnitSymbol.CompareTo(y.UnitSymbol));
-            Type allUnitType = All_Units.GetType();
-            All_Units = Activator.CreateInstance(allUnitType, new object[] { unitArray }) as IList<Unit>;
+            //Unit[] unitArray = All_Units.ToArray();
+            //Array.Sort(unitArray,(Unit x, Unit y)=> x.UnitSymbol.CompareTo(y.UnitSymbol));
+            //Type allUnitType = All_Units.GetType();
+            //All_Units = Activator.CreateInstance(allUnitType, new object[] { unitArray }) as IList<Unit>;
+
             System.Xml.Serialization.XmlSerializer xmlWriter = new System.Xml.Serialization.XmlSerializer(All_Units.GetType());
             using(System.IO.FileStream fileStream = System.IO.File.Create(unitsFile))
             {

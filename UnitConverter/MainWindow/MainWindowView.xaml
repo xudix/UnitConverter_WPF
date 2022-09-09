@@ -40,10 +40,10 @@
                 </Grid>
                 <DataGrid Margin="5,10" ItemsSource="{Binding ObservableResults, Mode=TwoWay}" AutoGenerateColumns="False" HorizontalContentAlignment="Center" VerticalContentAlignment="Stretch" HeadersVisibility="None" SelectionChanged="Result_Prefix_Changed" SelectedCellsChanged="Result_Selected_Cell_Changed">
                     <DataGrid.Columns>
-                        <DataGridTextColumn Binding="{Binding Value, NotifyOnSourceUpdated=True, StringFormat=\{0:G6\}}" ClipboardContentBinding="{x:Null}" CanUserResize="False" Width="*" />
+                        <DataGridTextColumn Binding="{Binding Value, NotifyOnSourceUpdated=True, StringFormat=\{0:G6\}}" ClipboardContentBinding="{x:Null}" CanUserResize="False" Width="*" IsReadOnly="True" />
                         <DataGridComboBoxColumn ClipboardContentBinding="{x:Null}" SelectedItemBinding="{Binding Prefix}" 
                                         ItemsSource="{Binding Mode=OneWay, Source={StaticResource preFixNames}}" CanUserResize="False" MinWidth="50" SelectedValuePath=""/>
-                        <DataGridTextColumn Binding="{Binding Unit}" ClipboardContentBinding="{x:Null}" CanUserResize="False" Width="*"/>
+                        <DataGridTextColumn Binding="{Binding Unit}" ClipboardContentBinding="{x:Null}" CanUserResize="False" Width="*" IsReadOnly="True"/>
                     </DataGrid.Columns>
 
                 </DataGrid>

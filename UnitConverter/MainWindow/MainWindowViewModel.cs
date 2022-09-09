@@ -151,9 +151,15 @@ namespace UnitConverter.MainWindow
         {
             get => new RelayCommand(() =>
                 {
-                    model.AddNewUnit(EditTabUnit);
-                    MessageBox.Show(string.Format("New unit {0} added!", EditTabUnit));
-                    EditTabUnit = new Unit();
+                    if (model.AddNewUnit(EditTabUnit))
+                    {
+                        MessageBox.Show(string.Format("New unit {0} added!", EditTabUnit));
+                        EditTabUnit = new Unit();
+                        NotifyPropertyChanged("All_Units");
+                    }
+                    else
+                        MessageBox.Show(string.Format("Fail to add unit {0}. Unit {0} already exist.", EditTabUnit.UnitSymbol));
+
                 }
             );
         }
