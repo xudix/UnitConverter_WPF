@@ -26,6 +26,7 @@ namespace UnitConverter.MainWindow
                 if (value != model.Input.Value)
                 {
                     model.SetInputValue(value);
+                    ObservableResults.RaiseCollectionChangedEvent();
                     //NotifyPropertyChanged("ObservableResults");
                 }
             }
@@ -39,6 +40,7 @@ namespace UnitConverter.MainWindow
                 if (value != model.Input.Prefix)
                 {
                     model.SetInputPrefix(value);
+                    ObservableResults.RaiseCollectionChangedEvent();
                     //NotifyPropertyChanged("ObservableResults");
                 }
             }
@@ -60,6 +62,7 @@ namespace UnitConverter.MainWindow
                     SearchPossibleDisplayUnits(inputUnitStr);
                     // Also send it to model (Conversion) to update results
                     model.SetInputUnit(inputUnitStr);
+                    ObservableResults.RaiseCollectionChangedEvent();
                     //NotifyPropertyChanged("ObservableResults");
 
                 }
@@ -78,11 +81,13 @@ namespace UnitConverter.MainWindow
         //    }
         //}
 
-        public ObservableCollection<VariableWithUnit> ObservableResults
-        {
-            get;
-            set;
-        }
+        //public ObservableCollection<VariableWithUnit> ObservableResults
+        //{
+        //    get;
+        //    set;
+        //}
+
+        public ObservableWrapper<VariableWithUnit> ObservableResults { get; set; }
 
         /// <summary>
         /// A list of possible units based on user input in unit_Input.
@@ -137,9 +142,10 @@ namespace UnitConverter.MainWindow
         #endregion
 
         #region Public methods exposed to view
-        public void UpdatePrefix(int index, string newPrefix)
+        public void UpdateResultPrefix(int index, string newPrefix)
         {
             model.UpdateResultPrefix(index, newPrefix);
+            ObservableResults.RaiseCollectionChangedEvent();
             //NotifyPropertyChanged("Results");
         }
 
@@ -215,9 +221,11 @@ namespace UnitConverter.MainWindow
         public MainWindowViewModel()
         {
             model = new Conversion();
-            ObservableResults = new ObservableCollection<VariableWithUnit>();
+            //ObservableResults = new ObservableCollection<VariableWithUnit>();
+            //model.Results = ObservableResults;
+            ObservableResults = new ObservableWrapper<VariableWithUnit>(model.Results);
             All_Units = new ObservableWrapper<Unit>(model.All_Units);
-            model.Results = ObservableResults;
+            
             PossibleDisplayUnits = new ObservableWrapper<Unit>(model.All_Units);
             editTabUnit = new Unit();
 

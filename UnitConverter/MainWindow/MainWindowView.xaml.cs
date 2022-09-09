@@ -37,7 +37,7 @@ namespace UnitConverter
         {
             if(e.OriginalSource.GetType() == typeof(ComboBox))
             {
-                viewModel.UpdatePrefix((sender as DataGrid).SelectedIndex, (e.OriginalSource as ComboBox).SelectedItem as string);
+                viewModel.UpdateResultPrefix((sender as DataGrid).SelectedIndex, (e.OriginalSource as ComboBox).SelectedItem as string);
             }
         }
 
