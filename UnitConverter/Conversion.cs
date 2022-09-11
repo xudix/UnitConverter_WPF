@@ -136,6 +136,96 @@ namespace UnitConverter
             CalculateNewOutput();
         }
 
+
+        private bool GetNextExpressionItem(char[] expression, ref int current, out Object? result, out bool isOperant, out bool isOperator)
+        {
+            result = null;
+            isOperant = false;
+            isOperator = false;
+            int start = current;
+            if (current >= expression.Length)
+                return false;
+            char c = expression[current++];
+            if (operatorPrecedence.ContainsKey(c)) // operator
+            {
+                isOperator = true;
+                result = c;
+            }
+            else
+            {
+                isOperant = true;
+
+                double number;
+                if (char.IsDigit(c) || c == '.') // starts with a number
+                {
+                    while (current < expression.Length)
+                    {
+                        c = expression[current];
+                        if (!char.IsDigit(c) && c != '.')
+                            break;
+                        current++;
+                    }// done with the number part. Potentially go into exponent part
+
+                    if ((c == 'e' || c == 'E') && current < expression.Length - 1 && (char.IsDigit(expression[current + 1]) || expression[current + 1] == '-' || expression[current + 1] == '+'))
+                    {
+                        // exponent part
+                        current++;
+                        if (expression[current] == '-' || expression[current] == '+') // move over the +- sign in exponent
+                            current++;
+                        while (current < expression.Length)
+                        {
+                            if (!char.IsDigit(expression[current]))
+                                break;
+                            current++;
+                        }
+                    }// done with exponent
+                    // current should be at the char next to the number
+                    if (!double.TryParse(new String(expression, start, current - start), out number))
+                        return false;
+                }
+                else
+                    number = 1;
+
+                // After reading the number
+                start = current;
+                while (current < expression.Length && !operatorPrecedence.ContainsKey(expression[current])) // 
+                {
+                    current++; // move on until an operator is found
+                }
+                if (current > start) // Actually have a unit
+                {
+                    string unitSymbol = new string(expression, start, current - start);
+                    int unitIndex = SearchUnit(unitSymbol);
+                    if (unitIndex >= 0) // The unit exist
+                    {
+                        result = new Unit(All_Units[unitIndex]);
+                        (result as Unit).Multiplier *= number;
+                    }
+                    else if (Prefixes.IsPrefix(c = expression[start]))// see if it has a prefix
+                    {
+                        start++;
+                        unitSymbol = new string(expression, start + 1, current - start);
+                        unitIndex = SearchUnit(unitSymbol);
+                        if (unitIndex >= 0) // The unit exist
+                        {
+                            result = new Unit(All_Units[unitIndex]);
+                            (result as Unit).Multiplier *= number * Prefixes.GetPrefixValue(c.ToString());
+                        }
+                        else// Not an existing unit
+                            return false;
+                    }
+                    else // Not an existing unit
+                        return false;
+                }
+                else // does not have a unit. Just a number
+                {
+                    result = new Unit();
+                    (result as Unit).Multiplier = number;
+                }
+            }
+            return true;
+        }
+
         #endregion
 
         #region Public methods
@@ -208,22 +298,37 @@ namespace UnitConverter
         public bool AddNewUnit(Unit newUnit)
         {
             //Do a binary search to determine the location of the new item
+            int newUnitIndex = SearchUnit(newUnit.UnitSymbol);
+            if (newUnitIndex >=0)
+                return false;
+            else
+                All_Units.Insert(~newUnitIndex, newUnit);
+            Save();
+            return true;
+        }
+
+        /// <summary>
+        /// Perform a binary search for a specific unit symbol in All_Units
+        /// </summary>
+        /// <param name="unitSymbol"></param>
+        /// <returns>If the unit symbol is found, returns the index of the unit. If the symbol is not found, returns the bitwise complement of the index of the first unit that follows unitSymbol</returns>
+        public int SearchUnit(string unitSymbol)
+        {
             int lo = 0, hi = All_Units.Count;
             int mid;
-            while(lo < hi)
+            while (lo < hi)
             {
-                mid = lo + ((hi - lo)>>1);
-                if (All_Units[mid].UnitSymbol.CompareTo(newUnit.UnitSymbol) > 0)
+                mid = lo + ((hi - lo) >> 1);
+                if (All_Units[mid].UnitSymbol.CompareTo(unitSymbol) > 0)
                     hi = mid;
                 else
                     lo = mid + 1;
             }
-            if (All_Units[lo-1].UnitSymbol.CompareTo(newUnit.UnitSymbol) == 0)
-                return false;
+            lo--;
+            if (All_Units[lo].UnitSymbol.CompareTo(unitSymbol) == 0) // found
+                return lo;
             else
-                All_Units.Insert(hi, newUnit);
-            Save();
-            return true;
+                return ~hi;
         }
 
         /// <summary>
@@ -277,6 +382,41 @@ namespace UnitConverter
                 xmlWriter.Serialize(fileStream, All_Units);
             }
         }
+
+
+        public static VariableWithUnit? EvaluateExpression(string expression)
+        {
+            char[] expressionChars = expression.Where(c => !Char.IsWhiteSpace(c)).ToArray();
+            Stack<Unit> operants = new Stack<Unit>();
+            Stack<string> operators = new Stack<string>();
+            VariableWithUnit? result = null;
+            
+            int i = 0;
+            bool isNumber, isUnit, isOperator;
+            
+            while(i < expression.Length)
+            {
+
+            }
+
+
+            return result;
+        }
+
+        private Dictionary<char, int> operatorPrecedence = new Dictionary<char, int>()
+            {
+                {')', 0 },
+                {']', 0 },
+                {'}', 0 },
+                {'+', 2 },
+                {'-', 2 },
+                {'*', 4 },
+                {'/', 4 },
+                {'^', 6 },
+                {'(', 10 },
+                {'[', 10 },
+                {'{', 10 },
+            };
 
 
         #endregion

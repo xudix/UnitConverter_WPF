@@ -53,6 +53,16 @@ namespace UnitConverter
 
         }
 
+        /// <summary>
+        /// Determin if the specific string is a SI prefix.
+        /// </summary>
+        /// <param name="prefix"></param>
+        /// <returns></returns>
+        public static bool IsPrefix(string prefix) =>
+            Dict_Prefixes.ContainsKey(prefix);
+
+        public static bool IsPrefix(char prefix) =>
+            Dict_Prefixes.ContainsKey(prefix.ToString());
 
 
         public IEnumerable<string> PrefixNames
