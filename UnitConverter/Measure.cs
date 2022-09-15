@@ -139,6 +139,7 @@ namespace UnitConverter
         /// <param name="measure">Another measure to be compared</param>
         /// <returns></returns>
         public bool Equals(Measure measure) =>
+            (measure as object) != null &&
             this.PowerOfCurrent == measure.PowerOfCurrent &&
             this.PowerOfLength == measure.PowerOfLength &&
             this.PowerOfLuminousIntensity == measure.PowerOfLuminousIntensity &&
@@ -156,11 +157,20 @@ namespace UnitConverter
         public static bool IsSameMeasure(Measure measure1, Measure measure2) =>
             measure1.Equals(measure2);
 
-        public static bool operator ==(Measure left, Measure right) =>
-            left.Equals(right);
+        /// <summary>
+        /// Determine if this measure is of the same measure as another unit or measure.
+        /// If true, this unit can be converted to the other unit or measure.
+        /// </summary>
+        /// <param name="measure"></param>
+        /// <returns></returns>
+        public bool IsSameMeasure(Measure measure) =>
+            Equals(measure);
 
-        public static bool operator !=(Measure left, Measure right) =>
-            !left.Equals(right);
+        public static bool operator ==(Measure left, Measure right) =>
+            (left as object) == null ? (right as object) == null: left.Equals(right);
+
+        public static bool operator != (Measure left, Measure right) =>
+            (left as object) == null ? !((right as object) == null): !left.Equals(right);
 
         /// <summary>
         /// Compares whether two measures are the same. They are the same if the power of all quantities are the same.
@@ -169,7 +179,7 @@ namespace UnitConverter
         /// <returns></returns>
         public override bool Equals(object o)
         {
-            return o is Measure measure ? this.Equals(measure) : false; // This is called "type pattern"
+            return o is Measure measure && Equals(measure); // This is called "type pattern"
         }
         #endregion
     }

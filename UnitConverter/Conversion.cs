@@ -136,7 +136,15 @@ namespace UnitConverter
             CalculateNewOutput();
         }
 
-
+        /// <summary>
+        /// Read the expression from index "current" to find the next item, either an operator or an operant.
+        /// </summary>
+        /// <param name="expression"></param>
+        /// <param name="current">The beginning of the current item. Will be moved to the next item when this method exits.</param>
+        /// <param name="result">When the item is an operator, result is a char. When the item is an operant, result is an object of class VariablewithUnit</param>
+        /// <param name="isOperant">True if the item is an operant</param>
+        /// <param name="isOperator">True if the item is an operator</param>
+        /// <returns>True if an item is found. False if the item cannot be read.</returns>
         private bool GetNextExpressionItem(char[] expression, ref int current, out Object? result, out bool isOperant, out bool isOperator)
         {
             result = null;
@@ -198,8 +206,7 @@ namespace UnitConverter
                     int unitIndex = SearchUnit(unitSymbol);
                     if (unitIndex >= 0) // The unit exist
                     {
-                        result = new Unit(All_Units[unitIndex]);
-                        (result as Unit).Multiplier *= number;
+                        result = new VariableWithUnit(number, new Unit(All_Units[unitIndex]));
                     }
                     else if (Prefixes.IsPrefix(c = expression[start]))// see if it has a prefix
                     {
@@ -208,8 +215,7 @@ namespace UnitConverter
                         unitIndex = SearchUnit(unitSymbol);
                         if (unitIndex >= 0) // The unit exist
                         {
-                            result = new Unit(All_Units[unitIndex]);
-                            (result as Unit).Multiplier *= number * Prefixes.GetPrefixValue(c.ToString());
+                            result = new VariableWithUnit(number, new Unit(All_Units[unitIndex]), c.ToString());
                         }
                         else// Not an existing unit
                             return false;
@@ -219,8 +225,7 @@ namespace UnitConverter
                 }
                 else // does not have a unit. Just a number
                 {
-                    result = new Unit();
-                    (result as Unit).Multiplier = number;
+                    result = new VariableWithUnit(number, new Unit());
                 }
             }
             return true;
@@ -384,27 +389,120 @@ namespace UnitConverter
         }
 
 
-        public static VariableWithUnit? EvaluateExpression(string expression)
+        public VariableWithUnit? EvaluateExpression(string expression)
         {
             char[] expressionChars = expression.Where(c => !Char.IsWhiteSpace(c)).ToArray();
-            Stack<Unit> operants = new Stack<Unit>();
-            Stack<string> operators = new Stack<string>();
-            VariableWithUnit? result = null;
+            Stack<VariableWithUnit> operants = new Stack<VariableWithUnit>();
+            Stack<char> operators = new Stack<char>();
+            Unit? result = null;
             
-            int i = 0;
-            bool isNumber, isUnit, isOperator;
-            
-            while(i < expression.Length)
+            int current = 0;
+            int nOperators = 0; // number of operators, except '(', '[', or '{'
+            bool isOperant, isOperator;
+            object expItem;
+            VariableWithUnit minusOne = new VariableWithUnit(-1, new Unit());
+
+            do
             {
+                if (current == expressionChars.Length)
+                {
+                    expItem = '\0';
+                    isOperator = true;
+                    isOperant = false;
+                }
+                else if (!GetNextExpressionItem(expressionChars, ref current, out expItem, out isOperant, out isOperator))
+                    return null;
 
-            }
+                if (isOperant)
+                {
+                    if (operants.Count != nOperators) // invalid expression
+                        return null;
+                    operants.Push(expItem as VariableWithUnit);
+                }
+                else if (isOperator)
+                {
+                    char c = (char)expItem;
+                    // handle ([{ and +-
+                    switch (c)
+                    {
+                        case '(': case '[': case '{':
+                            if (operants.Count - nOperators == 1) // This is a parenthesis directly following a operant
+                            {
+                                operators.Push('*');
+                                nOperators++;
 
+                            }
+                            operators.Push(c);
+                            continue;
 
-            return result;
+                        case '+': case '-':
+                            if (operants.Count == nOperators) // This sign is following a operator, or at the beginning of the expression. It's a unary operator
+                            {
+                                if (c == '-')
+                                {
+
+                                    operants.Push(minusOne);
+                                    operators.Push('*');
+                                    nOperators++;
+                                }
+                                continue;
+                            }
+                            break;
+                    }
+                    while (operatorPrecedence[c] < operatorPrecedence[operators.Peek()]) // Gets a low precedence operator. Evaluate the previous one.
+                    {
+                        char opr = operators.Pop();
+                        VariableWithUnit opt1, opt2;
+                        if (opr == '(' || opr == '[' || opr == '{') // c must be ),] or}
+                            break;
+                        opt1 = operants.Pop();
+                        opt2 = operants.Pop();
+                        switch (opr)
+                        {
+                            case '^':
+                                operants.Push(VariableWithUnit.Pow(opt2, opt1));
+                                break;
+                            case '*':
+                                operants.Push(opt2 * opt1);
+                                break;
+                            case '/':
+                                operants.Push(opt2 / opt1);
+                                break;
+
+                            case '+':
+                                if (opt2.Unit.IsSameMeasure(opt1.Unit))
+                                    operants.Push(new VariableWithUnit(opt2) { Multiplier = opt1.Multiplier + opt2.Multiplier });
+                                else
+                                    return null;
+                                break;
+                            case '-':
+                                if (opt2.IsSameMeasure(opt1))
+                                    operants.Push(new Unit(opt2) { Multiplier = opt2.Multiplier - opt1.Multiplier });
+                                else
+                                    return null;
+                                break;
+                        }
+                    }
+                    if (operatorPrecedence[c] > 1) // An operator that can be pushed
+                        if (operants.Count - nOperators == 1)
+                        {
+                            operators.Push(c);
+                            nOperators++;
+                        }
+                        else
+                            return null;
+                }
+                else
+                    return null;
+                
+            }while(operators.Count > 0);
+            
+            return operants.Pop();
         }
 
-        private Dictionary<char, int> operatorPrecedence = new Dictionary<char, int>()
+        private static Dictionary<char, int> operatorPrecedence = new Dictionary<char, int>()
             {
+                {'\0', -1 },
                 {')', 0 },
                 {']', 0 },
                 {'}', 0 },
@@ -413,9 +511,9 @@ namespace UnitConverter
                 {'*', 4 },
                 {'/', 4 },
                 {'^', 6 },
-                {'(', 10 },
-                {'[', 10 },
-                {'{', 10 },
+                {'(', 1 },
+                {'[', 1 },
+                {'{', 1 },
             };
 
 

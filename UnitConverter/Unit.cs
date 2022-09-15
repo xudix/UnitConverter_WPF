@@ -124,26 +124,40 @@ namespace UnitConverter
         /// <param name="unit1"></param>
         /// <param name="unit2"></param>
         /// <returns></returns>
-        public static Unit MultiplyUnits(Unit unit1, Unit unit2) =>
+        public static Unit Multiply(Unit unit1, Unit unit2) =>
             new Unit(unit1.PowerOfLength + unit2.PowerOfLength, unit1.PowerOfTime + unit2.PowerOfTime,
                 unit1.PowerOfMass + unit2.PowerOfMass, unit1.PowerOfSubstanceAmount + unit2.PowerOfSubstanceAmount,
                 unit1.PowerOfTemperature + unit2.PowerOfTemperature, unit1.PowerOfCurrent + unit2.PowerOfCurrent,
                 unit1.PowerOfLuminousIntensity + unit2.PowerOfLuminousIntensity, unit1.Multiplier * unit2.Multiplier);
 
         public static Unit operator *(Unit left, Unit right) =>
-            MultiplyUnits(left, right);
+            Multiply(left, right);
 
-        public static Unit DevideUnits(Unit unit1, Unit unit2) =>
+        public static Unit Divide(Unit unit1, Unit unit2) =>
             new Unit(unit1.PowerOfLength - unit2.PowerOfLength, unit1.PowerOfTime - unit2.PowerOfTime,
                 unit1.PowerOfMass - unit2.PowerOfMass, unit1.PowerOfSubstanceAmount - unit2.PowerOfSubstanceAmount,
                 unit1.PowerOfTemperature - unit2.PowerOfTemperature, unit1.PowerOfCurrent - unit2.PowerOfCurrent,
                 unit1.PowerOfLuminousIntensity - unit2.PowerOfLuminousIntensity, unit1.Multiplier / unit2.Multiplier);
 
         public static Unit operator /(Unit left, Unit right) =>
-            DevideUnits(left, right);
+            Divide(left, right);
+
+        public static Unit Pow(Unit unit, int pwr) => 
+            new Unit(unit.PowerOfLength * pwr,
+                unit.PowerOfTime * pwr,
+                unit.PowerOfMass * pwr,
+                unit.PowerOfSubstanceAmount * pwr,
+                unit.PowerOfTemperature * pwr,
+                unit.PowerOfCurrent * pwr,
+                unit.PowerOfLuminousIntensity * pwr,
+                Math.Pow(unit.Multiplier, pwr),
+                0);
+
+        public static Unit Pow(Unit unit, Unit pwr) =>
+            Pow(unit, (int)pwr.Multiplier);
 
         public bool Equals(Unit unit) =>
-            !object.Equals(unit, null)  &&
+            (unit as object) != null  &&
             PowerOfCurrent == unit.PowerOfCurrent &&
             PowerOfLength == unit.PowerOfLength &&
             PowerOfLuminousIntensity == unit.PowerOfLuminousIntensity &&
@@ -158,25 +172,18 @@ namespace UnitConverter
             (unit.Offset != 0 && Math.Abs(Offset - unit.Offset) / unit.Offset < 1e-9));
 
         public static bool operator ==(Unit left, Unit right) =>
-            object.Equals(left, null) ? object.Equals(right, null):left.Equals(right);
+            (left as object) == null ? (right as object) == null : left.Equals(right);
 
         public static bool operator !=(Unit left, Unit right) =>
-            object.Equals(left, null)? !object.Equals(right, null):!left.Equals(right);
+            (left as object) == null ? (right as object) != null:!left.Equals(right);
 
         public static bool IsSameUnit(Unit unit1, Unit unit2) =>
             unit1.Equals(unit2);
 
         public override bool Equals(object o) =>
-            base.Equals(o) && Equals((Unit)o); //Is this OK if o is Measure?
+            o is Unit unit && Equals(unit); //Is this OK if o is Measure?
 
-        /// <summary>
-        /// Determine if this Unit is of the same measure as another unit or measure.
-        /// If true, this unit can be converted to the other unit or measure.
-        /// </summary>
-        /// <param name="measure"></param>
-        /// <returns></returns>
-        public bool IsSameMeasure(Measure measure) =>
-            this == measure;
+
 
         public override string ToString() =>
             string.Format("{0} ({1})", UnitSymbol, UnitName);
