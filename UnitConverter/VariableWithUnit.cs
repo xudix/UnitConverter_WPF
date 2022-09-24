@@ -34,7 +34,8 @@ namespace UnitConverter
             Prefix = prefix;
         }
 
-
+        public VariableWithUnit(VariableWithUnit var) =>
+            new VariableWithUnit(var.Value, var.Unit, var.Prefix);
 
         #endregion
 
@@ -80,7 +81,13 @@ namespace UnitConverter
             obj is VariableWithUnit var && Equals(var);
 
         public VariableWithUnit Multiply(VariableWithUnit other) =>
-            new VariableWithUnit(Value*Prefixes.GetPrefixValue(Prefix) * other.Value*Prefixes.GetPrefixValue(other.Prefix), Unit * other.Unit);
+            Unit.IsSameMeasure(Measure.Number)?
+            new VariableWithUnit(Value * Prefixes.GetPrefixValue(Prefix) * other.Value, other.Unit, other.Prefix):
+            other.Unit.IsSameMeasure(Measure.Number)?
+            new VariableWithUnit(Value * other.Value * Prefixes.GetPrefixValue(other.Prefix), Unit, Prefix):
+            new VariableWithUnit(Value * Prefixes.GetPrefixValue(Prefix) * other.Value * Prefixes.GetPrefixValue(other.Prefix), Unit * other.Unit);
+        
+            
 
         public static VariableWithUnit Multiply(VariableWithUnit var1, VariableWithUnit var2) =>
             var1.Multiply(var2);
@@ -89,7 +96,9 @@ namespace UnitConverter
             var1.Multiply(var2);
 
         public VariableWithUnit Divide(VariableWithUnit other) =>
-            new VariableWithUnit(Value * Prefixes.GetPrefixValue(Prefix) / other.Value / Prefixes.GetPrefixValue(other.Prefix), Unit / other.Unit);
+            other.Unit.IsSameMeasure(Measure.Number) ?
+            new VariableWithUnit(Value / (other.Value * Prefixes.GetPrefixValue(other.Prefix)), Unit, Prefix):
+            new VariableWithUnit(Value * (Prefixes.GetPrefixValue(Prefix)) / (other.Value * Prefixes.GetPrefixValue(other.Prefix)), Unit / other.Unit);
 
         public static VariableWithUnit Divide(VariableWithUnit var1, VariableWithUnit var2) =>
             var1.Divide(var2);
@@ -106,6 +115,25 @@ namespace UnitConverter
         public VariableWithUnit Pow(int power) =>
             Pow(this, power);
 
+        public VariableWithUnit? Add(VariableWithUnit other) =>
+            Unit.IsSameMeasure(other.Unit) ?
+            new VariableWithUnit(Value + other.Convert(Unit, Prefix).Value, Unit, Prefix) : null;
+
+        public static VariableWithUnit? Add(VariableWithUnit var1, VariableWithUnit var2) =>
+            var1.Add(var2);
+
+        public static VariableWithUnit? operator + (VariableWithUnit var1, VariableWithUnit var2) =>
+            var1.Add(var2);
+
+        public VariableWithUnit? Subtract(VariableWithUnit other) =>
+            Unit.IsSameMeasure(other.Unit) ?
+            new VariableWithUnit(Value - other.Convert(Unit, Prefix).Value, Unit, Prefix) : null;
+
+        public static VariableWithUnit? Subtract(VariableWithUnit var1, VariableWithUnit var2) =>
+            var1.Subtract(var2);
+
+        public static VariableWithUnit? operator -(VariableWithUnit var1, VariableWithUnit var2) =>
+            var1.Subtract(var2);
         #endregion
 
 

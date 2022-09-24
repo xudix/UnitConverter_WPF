@@ -118,7 +118,31 @@ namespace UnitConverter.MainWindow
         }
 
         private Unit editTabUnit;
-        public string EditTabExpression { get => editTabExpression; set => editTabExpression = value; }
+        public string EditTabExpression 
+        { 
+            get => editTabExpression;
+            set
+            {
+                if(editTabExpression != value)
+                {
+                    editTabExpression = value;
+                    try
+                    {
+                        var expResult = model.EvaluateExpression(editTabExpression);
+                        if (expResult != null)
+                        {
+                            editTabUnit = expResult.Unit;
+                            editTabUnit.Multiplier *= expResult.Value * Prefixes.GetPrefixValue(expResult.Prefix);
+                            editTabUnit.UnitSymbol = "";
+                            editTabUnit.UnitName = "";
+                            NotifyPropertyChanged("EditTabUnit");
+                        }
+                    }
+                    catch { }
+                }
+                
+            }
+        }
 
         public ObservableWrapper<Unit> All_Units 
         { 
@@ -167,14 +191,26 @@ namespace UnitConverter.MainWindow
         {
             get => new RelayCommand(() =>
                 {
-                    if (model.AddNewUnit(EditTabUnit))
+                    try
                     {
-                        MessageBox.Show(string.Format("New unit {0} added!", EditTabUnit));
-                        EditTabUnit = new Unit();
-                        All_Units.RaiseCollectionChangedEvent();
+                        if(EditTabUnit.UnitSymbol == "")
+                        {
+                            MessageBox.Show("Unit symbol required.");
+                        }
+                        else if (model.AddNewUnit(EditTabUnit))
+                        {
+                            MessageBox.Show(string.Format("New unit {0} added!", EditTabUnit));
+                            EditTabUnit = new Unit();
+                            All_Units.RaiseCollectionChangedEvent();
+                        }
+                        else
+                            MessageBox.Show(string.Format("Fail to add unit {0}. Unit {0} already exist.", EditTabUnit.UnitSymbol));
                     }
-                    else
-                        MessageBox.Show(string.Format("Fail to add unit {0}. Unit {0} already exist.", EditTabUnit.UnitSymbol));
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show(string.Format("Error adding unit.\n{0}", ex.Message));
+                    }
+                    
 
                 }
             );

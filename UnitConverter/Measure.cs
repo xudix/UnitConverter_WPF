@@ -182,5 +182,19 @@ namespace UnitConverter
             return o is Measure measure && Equals(measure); // This is called "type pattern"
         }
         #endregion
+
+        #region standard measures
+
+        public static readonly Measure Number = new Measure();
+        public static readonly Measure Length = new Measure(1, 0, 0, 0, 0, 0, 0, "LENGTH");
+        public static readonly Measure Time = new Measure(0, 1, 0, 0, 0, 0, 0, "TIME");
+        public static readonly Measure Mass = new Measure(0, 0, 1, 0, 0, 0, 0, "MASS");
+        public static readonly Measure SubstanceAmount = new Measure(0, 0, 0, 1, 0, 0, 0, "SUBSTANCEAMOUNT");
+        public static readonly Measure Temperature = new Measure(0, 0, 0, 0, 1, 0, 0, "TEMPERATURE");
+        public static readonly Measure Current = new Measure(0, 0, 0, 0, 0, 1, 0, "CURRENT");
+        public static readonly Measure LightIntensity = new Measure(0, 0, 0, 0, 0, 0, 1, "LIGNTINTENSITY");
+
+        #endregion
+
     }
 }

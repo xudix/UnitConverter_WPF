@@ -91,6 +91,8 @@ namespace UnitConverter
         {
             Multiplier = 1.0;
             Offset = 0.0;
+            UnitName = "";
+            UnitSymbol = "";
         }
 
         /// <summary>

@@ -153,11 +153,12 @@ namespace UnitConverter
             int start = current;
             if (current >= expression.Length)
                 return false;
-            char c = expression[current++];
+            char c = expression[current];
             if (operatorPrecedence.ContainsKey(c)) // operator
             {
                 isOperator = true;
                 result = c;
+                current++;
             }
             else
             {
@@ -166,12 +167,11 @@ namespace UnitConverter
                 double number;
                 if (char.IsDigit(c) || c == '.') // starts with a number
                 {
-                    while (current < expression.Length)
+                    while (char.IsDigit(c) || c == '.')
                     {
-                        c = expression[current];
-                        if (!char.IsDigit(c) && c != '.')
+                        if (++current == expression.Length)
                             break;
-                        current++;
+                        c = expression[current];
                     }// done with the number part. Potentially go into exponent part
 
                     if ((c == 'e' || c == 'E') && current < expression.Length - 1 && (char.IsDigit(expression[current + 1]) || expression[current + 1] == '-' || expression[current + 1] == '+'))
@@ -211,7 +211,7 @@ namespace UnitConverter
                     else if (Prefixes.IsPrefix(c = expression[start]))// see if it has a prefix
                     {
                         start++;
-                        unitSymbol = new string(expression, start + 1, current - start);
+                        unitSymbol = new string(expression, start, current - start);
                         unitIndex = SearchUnit(unitSymbol);
                         if (unitIndex >= 0) // The unit exist
                         {
@@ -360,6 +360,7 @@ namespace UnitConverter
                 All_Units.Remove(oldUnit);
                 AddNewUnit(newUnit);
             }
+            Save();
         }
 
 
@@ -394,6 +395,7 @@ namespace UnitConverter
             char[] expressionChars = expression.Where(c => !Char.IsWhiteSpace(c)).ToArray();
             Stack<VariableWithUnit> operants = new Stack<VariableWithUnit>();
             Stack<char> operators = new Stack<char>();
+            operators.Push('\0');
             Unit? result = null;
             
             int current = 0;
@@ -402,7 +404,7 @@ namespace UnitConverter
             object expItem;
             VariableWithUnit minusOne = new VariableWithUnit(-1, new Unit());
 
-            do
+            while (operators.Count > 0)
             {
                 if (current == expressionChars.Length)
                 {
@@ -449,12 +451,13 @@ namespace UnitConverter
                             }
                             break;
                     }
-                    while (operatorPrecedence[c] < operatorPrecedence[operators.Peek()]) // Gets a low precedence operator. Evaluate the previous one.
+                    while (operatorPrecedence[c] <= operatorPrecedence[operators.Peek()]) // Gets a low precedence operator. Evaluate the previous one.
                     {
                         char opr = operators.Pop();
-                        VariableWithUnit opt1, opt2;
-                        if (opr == '(' || opr == '[' || opr == '{') // c must be ),] or}
+                        if (operatorPrecedence[opr] < 1) // opr is ([{ or \0. c must be ),] or}
                             break;
+                        nOperators--;
+                        VariableWithUnit opt1, opt2; 
                         opt1 = operants.Pop();
                         opt2 = operants.Pop();
                         switch (opr)
@@ -470,16 +473,16 @@ namespace UnitConverter
                                 break;
 
                             case '+':
-                                if (opt2.Unit.IsSameMeasure(opt1.Unit))
-                                    operants.Push(new VariableWithUnit(opt2) { Multiplier = opt1.Multiplier + opt2.Multiplier });
-                                else
+                                if ((opt2 += opt1) == null)
                                     return null;
+                                else
+                                    operants.Push(opt2);
                                 break;
                             case '-':
-                                if (opt2.IsSameMeasure(opt1))
-                                    operants.Push(new Unit(opt2) { Multiplier = opt2.Multiplier - opt1.Multiplier });
-                                else
+                                if ((opt2 -= opt1) == null)
                                     return null;
+                                else
+                                    operants.Push(opt2);
                                 break;
                         }
                     }
@@ -494,9 +497,7 @@ namespace UnitConverter
                 }
                 else
                     return null;
-                
-            }while(operators.Count > 0);
-            
+            }
             return operants.Pop();
         }
 
@@ -511,9 +512,9 @@ namespace UnitConverter
                 {'*', 4 },
                 {'/', 4 },
                 {'^', 6 },
-                {'(', 1 },
-                {'[', 1 },
-                {'{', 1 },
+                {'(', 0 },
+                {'[', 0 },
+                {'{', 0 },
             };
 
 
