@@ -20,13 +20,19 @@ namespace UnitConverter
         private IList<string> new_Prefixes;
         // When no unit is specified, the Unit is set to the unit of number, i.e. Measure of NUMBER and multiplier of 1.0.
         private static readonly Unit number_Unit = new Unit();
-        private VariableWithUnit input;
+        private VariableWithUnit input, customConversionUnit, customConversionResult;
+        private string inputExpression, customConversionUnitExpression;
 
         #region Public Properties
 
         public VariableWithUnit Input 
         {
             get => input;
+            set
+            {
+                input = value;
+                CalculateNewOutput();
+            }
         }
 
         public IList<VariableWithUnit> Results { get; set; }
@@ -52,6 +58,75 @@ namespace UnitConverter
         /// </summary>
         public IList<Unit> All_Units { get; set; }
         public IList<string> New_Prefixes { get => new_Prefixes; set => new_Prefixes = value; }
+
+        /// <summary>
+        /// A string expression that defines the input. It can be a artithmatic formula of numbers and units.
+        /// </summary>
+        public string InputExpression
+        {
+            get => inputExpression;
+            set
+            {
+                if(inputExpression != value)
+                {
+                    inputExpression = value;
+                    try
+                    {
+                        VariableWithUnit expResult = EvaluateExpression(inputExpression);
+                        if (expResult != null)
+                        {
+                            if (TryFindUnit(expResult.Unit, out string measureName, out string unitSymbol, out string unitName))
+                            {
+                                expResult.Unit.UnitSymbol = unitSymbol;
+                                expResult.Unit.UnitName = unitName;
+                                expResult.Unit.MeasureName = measureName;
+                            }
+                            else // The unit doesn't exist. Convert it to a SI unit
+                            {
+                                expResult.Value *= expResult.Unit.Multiplier;
+                                expResult.Unit.Multiplier = 1;
+                            }
+                            Input = expResult;
+                        }
+                    }
+                    catch { }
+                }
+            }
+        }
+
+
+        public string CustomConversionUnitExpression
+        {
+            get => customConversionUnitExpression;
+            set
+            {
+                if (customConversionUnitExpression != value)
+                {
+                    customConversionUnitExpression = value;
+                    try
+                    {
+                        CustomConversionUnit = EvaluateExpression(value);
+                    }
+                    catch { }
+                }
+            }
+        }
+
+
+        public VariableWithUnit? CustomConversionUnit
+        {
+            get => customConversionUnit;
+            set
+            {
+                customConversionUnit = value;
+                CalculateCustomConversion();
+            }
+        }
+
+        public VariableWithUnit CustomConversionResult
+        {
+            get => customConversionResult;
+        }
 
         #endregion
 
@@ -110,7 +185,38 @@ namespace UnitConverter
                 //foreach (VariableWithUnit var in Results)
                 //    Console.WriteLine(var);
             }
-            
+            CalculateCustomConversion();
+        }
+
+        /// <summary>
+        /// Calcualtes the custom conversion based on CustomConversionUnit
+        /// </summary>
+        private void CalculateCustomConversion()
+        {
+            if (customConversionUnit == null)
+            {
+                customConversionResult = null;
+                return;
+            }
+            if (customConversionUnit.Unit.IsSameMeasure(Input.Unit)) // Same measure. Perform a normal conversion. CustomConversionResult has a measure of NUMBER
+            {
+                customConversionResult = new VariableWithUnit(Input.Convert(customConversionUnit.Unit, customConversionUnit.Prefix).Value / customConversionUnit.Value, new Unit());
+            }
+            else // Different measures. Perform a division.
+            {
+                customConversionResult = Input / customConversionUnit;
+                if (TryFindUnit(customConversionResult.Unit, out string measureName, out string unitSymbol, out string unitName))
+                {
+                    customConversionResult.Unit.UnitSymbol = unitSymbol;
+                    customConversionResult.Unit.UnitName = unitName;
+                    customConversionResult.Unit.MeasureName = measureName;
+                }
+                else // The unit doesn't exist. Convert it to a SI unit
+                {
+                    customConversionResult.Value *= customConversionUnit.Unit.Multiplier;
+                    customConversionResult.Unit.Multiplier = 1;
+                }
+            }
         }
 
 
@@ -211,6 +317,8 @@ namespace UnitConverter
                     else if (Prefixes.IsPrefix(c = expression[start]))// see if it has a prefix
                     {
                         start++;
+                        if (start == current)
+                            return false;
                         unitSymbol = new string(expression, start, current - start);
                         unitIndex = SearchUnit(unitSymbol);
                         if (unitIndex >= 0) // The unit exist
@@ -337,6 +445,45 @@ namespace UnitConverter
         }
 
         /// <summary>
+        /// Find the name of the input measure.
+        /// </summary>
+        /// <param name="measure"></param>
+        /// <returns>The name of the measure, if the same measure is found in existing units. Otherwise, empty string.</returns>
+        public string FindMeasureName(Measure measure)
+        {
+            for(int i = 0; i < All_Units.Count; i++)
+                if(All_Units[i].IsSameMeasure(measure) && All_Units[i].MeasureName != "")
+                    return All_Units[i].MeasureName;
+            return "";
+        }
+
+        /// <summary>
+        /// Try to find an existing unit that is the same as the input unit, or at least find the measure name.
+        /// </summary>
+        /// <param name="unit"></param>
+        /// <param name="measureName">The measure name if the same unit or a unit of same measure is found. Otherwise, empty string.</param>
+        /// <param name="unitSymbol">The unit symbol if the same unit is found. Otherwise, empty string.</param>
+        /// <param name="unitName">The unit name if the same unit is found. Otherwise, empty string.</param>
+        /// <returns>True if at least the measure name is found. False if no measure name is found</returns>
+        public bool TryFindUnit(Unit unit, out string measureName, out string unitSymbol, out string unitName)
+        {
+            measureName = "";
+            unitSymbol = "";
+            unitName = "";
+            for (int i = 0; i < All_Units.Count; i++)
+                if(All_Units[i].Equals(unit))
+                {
+                    measureName = All_Units[i].MeasureName;
+                    unitSymbol = All_Units[i].UnitSymbol;
+                    unitName = All_Units[i].UnitName;
+                    return true;
+                }
+                else if (All_Units[i].IsSameMeasure(unit) && All_Units[i].MeasureName != "")
+                    measureName = All_Units[i].MeasureName;
+            return measureName == "";
+        }
+
+        /// <summary>
         /// Delete a unit from the collection of units
         /// </summary>
         /// <param name="unitToDelete"></param>
@@ -396,7 +543,6 @@ namespace UnitConverter
             Stack<VariableWithUnit> operants = new Stack<VariableWithUnit>();
             Stack<char> operators = new Stack<char>();
             operators.Push('\0');
-            Unit? result = null;
             
             int current = 0;
             int nOperators = 0; // number of operators, except '(', '[', or '{'
@@ -498,7 +644,7 @@ namespace UnitConverter
                 else
                     return null;
             }
-            return operants.Pop();
+            return operants.Count == 1? operants.Peek(): null;
         }
 
         private static Dictionary<char, int> operatorPrecedence = new Dictionary<char, int>()

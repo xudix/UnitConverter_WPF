@@ -168,10 +168,10 @@ namespace UnitConverter
             PowerOfTemperature == unit.PowerOfTemperature &&
             PowerOfTime == unit.PowerOfTime &&
             Multiplier != 0 &&
-            Math.Abs(Multiplier - unit.Multiplier) / Multiplier < 1e-9 &&
+            Math.Abs(Multiplier - unit.Multiplier) / Multiplier < 1e-4 &&
             (Offset == unit.Offset ||
-            (Offset != 0 && Math.Abs(Offset - unit.Offset) / Offset < 1e-9) ||
-            (unit.Offset != 0 && Math.Abs(Offset - unit.Offset) / unit.Offset < 1e-9));
+            (Offset != 0 && Math.Abs(Offset - unit.Offset) / Offset < 1e-4) ||
+            (unit.Offset != 0 && Math.Abs(Offset - unit.Offset) / unit.Offset < 1e-4));
 
         public static bool operator ==(Unit left, Unit right) =>
             (left as object) == null ? (right as object) == null : left.Equals(right);
@@ -188,7 +188,21 @@ namespace UnitConverter
 
 
         public override string ToString() =>
-            string.Format("{0} ({1})", UnitSymbol, UnitName);
+            string.Format("{0} ({1})", GetSymbol(), UnitName);
+
+        /// <summary>
+        /// Return the symbol of this unit. If the unit symbol is not set, it returns a symbol under SI units.
+        /// </summary>
+        /// <returns>The symbol of this unit. If the unit symbol is not set, it returns a symbol under SI units.</returns>
+        public string GetSymbol()
+        {
+            if (UnitSymbol == "")
+            {
+                return Multiplier != 1? Multiplier + GetSISymbol() : GetSISymbol();
+            }
+            else
+                return UnitSymbol;
+        }
 
         #endregion
     }

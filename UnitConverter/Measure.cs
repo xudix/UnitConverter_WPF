@@ -134,6 +134,54 @@ namespace UnitConverter
         #region Public Methods
 
         /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
+        public string GetSISymbol()
+        {
+            List<string> symbols = new List<string>();
+            if (PowerOfLength != 0)
+                symbols.Add(PowerOfLength == 1 ? "m" : "m^" + PowerOfLength);
+            if (PowerOfTime != 0)
+                symbols.Add(PowerOfTime == 1 ? "s" : "s^" + PowerOfTime);
+            if (PowerOfMass != 0)
+                symbols.Add(PowerOfMass == 1 ? "kg" : "kg^" + PowerOfMass);
+            if (PowerOfSubstanceAmount != 0)
+                symbols.Add(PowerOfSubstanceAmount == 1 ? "mol" : "mol^" + PowerOfSubstanceAmount);
+            if (PowerOfTemperature != 0)
+                symbols.Add(PowerOfTemperature == 1 ? "K" : "K^" + PowerOfTemperature);
+            if (PowerOfCurrent != 0)
+                symbols.Add(PowerOfCurrent == 1 ? "A" : "A^" + PowerOfCurrent);
+            if (PowerOfLuminousIntensity != 0)
+                symbols.Add(PowerOfLuminousIntensity == 1 ? "cd" : "cd^" + PowerOfLuminousIntensity);
+            if (symbols.Count > 0)
+                return String.Join("*", symbols);
+            else return String.Empty;
+        }
+
+        public string GetDimension()
+        {
+            List<string> symbols = new List<string>();
+            if (PowerOfLength != 0)
+                symbols.Add(PowerOfLength == 1 ? "L" : "L^" + PowerOfLength);
+            if (PowerOfTime != 0)
+                symbols.Add(PowerOfTime == 1 ? "T" : "T^" + PowerOfLength);
+            if (PowerOfMass != 0)
+                symbols.Add(PowerOfMass == 1 ? "M" : "M^" + PowerOfLength);
+            if (PowerOfSubstanceAmount != 0)
+                symbols.Add(PowerOfSubstanceAmount == 1 ? "N" : "N^" + PowerOfLength);
+            if (PowerOfTemperature != 0)
+                symbols.Add(PowerOfTemperature == 1 ? "U+0398" : "U+0398^" + PowerOfLength);
+            if (PowerOfCurrent != 0)
+                symbols.Add(PowerOfCurrent == 1 ? "I" : "I^" + PowerOfLength);
+            if (PowerOfLuminousIntensity != 0)
+                symbols.Add(PowerOfLuminousIntensity == 1 ? "J" : "J^" + PowerOfLength);
+            if (symbols.Count > 0)
+                return String.Join("*", symbols);
+            else return String.Empty;
+        }
+
+        /// <summary>
         /// Compares whether two measures are the same. They are the same if the power of all quantities are the same.
         /// </summary>
         /// <param name="measure">Another measure to be compared</param>

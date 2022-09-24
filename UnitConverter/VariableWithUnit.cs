@@ -55,7 +55,7 @@ namespace UnitConverter
         }
 
         public override String ToString() =>
-            string.Format("{0:G} {1}{2}", Value, Prefix, Unit.UnitSymbol);
+            string.Format("{0:G} {1}{2}", Value, Prefix, Unit.GetSymbol());
 
 
         public bool Equals(VariableWithUnit var)

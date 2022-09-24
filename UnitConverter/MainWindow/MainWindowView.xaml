@@ -23,6 +23,10 @@
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto"/>
                         <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
                     </Grid.RowDefinitions>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition/>
@@ -37,6 +41,17 @@
                       ItemsSource="{Binding Mode=OneWay, Source={StaticResource preFixNames}}" Text="{Binding InputPrefix}" Foreground="Black" IsReadOnly="True" MinWidth="40" BorderBrush="{x:Null}"/>
                     <ComboBox x:Name="conversion_Unit_Input" Grid.Column="2" Grid.Row="1" Foreground="Black" VerticalContentAlignment="Stretch" Background="{x:Null}" 
                     IsEditable="True" Margin="5,0" Text="{Binding InputUnitStr}" ItemsSource="{Binding PossibleDisplayUnits}" PreviewTextInput="Unit_Input_PreviewTextInput" HorizontalContentAlignment="Stretch" BorderBrush="{x:Null}" IsTextSearchEnabled="False"/>
+                    <Label Grid.Row="2" Content="Expression" Foreground="White" />
+                    <Label Grid.Row="2" Grid.Column="2" Content="Type expression here" Foreground="White" HorizontalAlignment="Right" />
+                    <TextBox x:Name="conversion_Input_Exp_Input" Grid.Row="3" Padding="5,0" Margin="5,0" TextAlignment="Left" Text="{Binding ConversionExpression, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Grid.ColumnSpan="3"/>
+                    <Label Grid.Row="4" Content="Result" Foreground="White" />
+                    <Label Grid.Row="4" Grid.Column="1" Content="Convert To Unit (expression)" Foreground="White" Grid.ColumnSpan="2" />
+                    <Label x:Name="exp_Conv_Result_Label" Grid.Row="5" Foreground="White" HorizontalAlignment="Right" Margin="0,0,5,0" Content="{Binding CustomConversionResult}" >
+                        <Label.BorderBrush>
+                            <SolidColorBrush Color="White" Opacity="1"/>
+                        </Label.BorderBrush>
+                    </Label>
+                    <TextBox x:Name="conversion_Result_Exp_Input" Grid.Row="5" Grid.Column="1" Padding="5,0" Margin="5,0" TextAlignment="Left" Text="{Binding CustomConversionUnitExpression, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Grid.ColumnSpan="2"/>
                 </Grid>
                 <DataGrid Margin="5,10" ItemsSource="{Binding ObservableResults, Mode=TwoWay}" AutoGenerateColumns="False" HorizontalContentAlignment="Center" VerticalContentAlignment="Stretch" HeadersVisibility="None" SelectionChanged="Result_Prefix_Changed" SelectedCellsChanged="Result_Selected_Cell_Changed">
                     <DataGrid.Columns>
@@ -52,7 +67,7 @@
         </TabItem>
         <TabItem Header="Edit Units">
             <StackPanel VerticalAlignment="Stretch">
-                
+
                 <Grid Background="Black">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto"/>

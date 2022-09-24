@@ -68,25 +68,7 @@ namespace UnitConverter.MainWindow
                 }
             }
         }
-        //public VariableWithUnit[] Results
-        //{
-        //    get => model.Results;
-        //    set
-        //    {
-        //        if (value != results)
-        //        {
-        //            results = value;
-        //            NotifyPropertyChanged();
-        //        }
-        //    }
-        //}
-
-        //public ObservableCollection<VariableWithUnit> ObservableResults
-        //{
-        //    get;
-        //    set;
-        //}
-
+        
         public ObservableWrapper<VariableWithUnit> ObservableResults { get; set; }
 
         /// <summary>
@@ -107,6 +89,9 @@ namespace UnitConverter.MainWindow
             }
         }
 
+        /// <summary>
+        /// The unit in edit tab. It's binded to various input boxes in edit tab.
+        /// </summary>
         public Unit EditTabUnit
         { 
             get => editTabUnit;
@@ -133,17 +118,22 @@ namespace UnitConverter.MainWindow
                         {
                             editTabUnit = expResult.Unit;
                             editTabUnit.Multiplier *= expResult.Value * Prefixes.GetPrefixValue(expResult.Prefix);
-                            editTabUnit.UnitSymbol = "";
-                            editTabUnit.UnitName = "";
+                            model.TryFindUnit(editTabUnit, out string measureName, out string unitSymbol, out string unitName);
+                            editTabUnit.UnitSymbol = unitSymbol;
+                            editTabUnit.UnitName = unitName;
+                            editTabUnit.MeasureName = measureName;
                             NotifyPropertyChanged("EditTabUnit");
                         }
                     }
                     catch { }
                 }
-                
             }
         }
+        private String editTabExpression;
 
+        /// <summary>
+        /// 
+        /// </summary>
         public ObservableWrapper<Unit> All_Units 
         { 
             get => all_Units;
@@ -160,7 +150,38 @@ namespace UnitConverter.MainWindow
 
         private ObservableWrapper<Unit> all_Units;
 
-        private String editTabExpression;
+        /// <summary>
+        /// 
+        /// </summary>
+        public string ConversionExpression
+        {
+            get => model.InputExpression;
+            set
+            {
+                model.InputExpression = value;
+                inputUnitStr = model.Input.Unit.ToString();
+                NotifyPropertyChanged("InputValue");
+                NotifyPropertyChanged("InputPrefix");
+                NotifyPropertyChanged("InputUnitStr");
+                NotifyPropertyChanged("CustomConversionResult");
+                ObservableResults.RaiseCollectionChangedEvent();
+            }
+        }
+
+        public string CustomConversionUnitExpression
+        {
+            get => model.CustomConversionUnitExpression;
+            set
+            {
+                model.CustomConversionUnitExpression = value;
+                NotifyPropertyChanged("CustomConversionResult");
+            }
+        }
+
+        public VariableWithUnit CustomConversionResult
+        {
+            get => model.CustomConversionResult;
+        }
 
 
         #endregion
@@ -202,6 +223,7 @@ namespace UnitConverter.MainWindow
                             MessageBox.Show(string.Format("New unit {0} added!", EditTabUnit));
                             EditTabUnit = new Unit();
                             All_Units.RaiseCollectionChangedEvent();
+                            SearchPossibleDisplayUnits(inputUnitStr);
                         }
                         else
                             MessageBox.Show(string.Format("Fail to add unit {0}. Unit {0} already exist.", EditTabUnit.UnitSymbol));
@@ -222,6 +244,8 @@ namespace UnitConverter.MainWindow
                 {
                     model.ModifyExistingUnit(oldUnit, EditTabUnit);
                     MessageBox.Show(string.Format("Unit {0} modified!", EditTabUnit));
+                    All_Units.RaiseCollectionChangedEvent();
+                    SearchPossibleDisplayUnits(inputUnitStr);
                     EditTabUnit = new Unit();
                 }
             );
@@ -234,6 +258,7 @@ namespace UnitConverter.MainWindow
                     model.DeleteUnit(oldUnit);
                     MessageBox.Show(string.Format("Unit {0} Deleted!", oldUnit));
                     All_Units.RaiseCollectionChangedEvent();
+                    SearchPossibleDisplayUnits(inputUnitStr);
                     EditTabUnit = new Unit();
                 }
             );
@@ -277,8 +302,7 @@ namespace UnitConverter.MainWindow
 
         private Conversion model;
         private ObservableWrapper<Unit> possibleDisplayUnits;
-        private string inputUnitStr;
-        private VariableWithUnit[] results;
+        private string inputUnitStr = "";
         /// <summary>
         /// Saves the old unit to be updated
         /// </summary>
