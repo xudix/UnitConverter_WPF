@@ -116,14 +116,16 @@ namespace UnitConverter.MainWindow
                         var expResult = model.EvaluateExpression(editTabExpression);
                         if (expResult != null)
                         {
-                            editTabUnit = expResult.Unit;
-                            editTabUnit.Multiplier *= expResult.Value * Prefixes.GetPrefixValue(expResult.Prefix);
-                            model.TryFindUnit(editTabUnit, out string measureName, out string unitSymbol, out string unitName);
-                            editTabUnit.UnitSymbol = unitSymbol;
-                            editTabUnit.UnitName = unitName;
-                            editTabUnit.MeasureName = measureName;
-                            NotifyPropertyChanged("EditTabUnit");
+                            var newUnit = expResult.Unit;
+                            newUnit.Multiplier *= expResult.Value * Prefixes.GetPrefixValue(expResult.Prefix);
+                            model.TryFindUnit(newUnit, out string measureName, out string unitSymbol, out string unitName);
+                            newUnit.UnitSymbol = unitSymbol;
+                            newUnit.UnitName = unitName;
+                            newUnit.MeasureName = measureName;
+                            UpdateUnitToEdit(newUnit);
                         }
+                        else
+                            UpdateUnitToEdit(new Unit());
                     }
                     catch { }
                 }

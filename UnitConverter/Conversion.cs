@@ -31,7 +31,7 @@ namespace UnitConverter
             set
             {
                 input = value;
-                CalculateNewOutput();
+                updateInputUnit(input.Unit);
             }
         }
 
@@ -233,7 +233,7 @@ namespace UnitConverter
             new_Prefixes = new List<string>();
             foreach (Unit item in All_Units)
             {
-                if (item.IsSameMeasure(unit) && item != unit)
+                if (item.IsSameMeasure(unit) && item.UnitSymbol != unit.UnitSymbol)
                 {
                     new_Units.Add(item);
                     new_Prefixes.Add("");
@@ -374,7 +374,7 @@ namespace UnitConverter
                 }
             }
             input.Unit = number_Unit;
-
+            updateInputUnit(number_Unit);
         }
 
         public void SetInputValue(double newValue)
@@ -432,13 +432,13 @@ namespace UnitConverter
             while (lo < hi)
             {
                 mid = lo + ((hi - lo) >> 1);
-                if (All_Units[mid].UnitSymbol.CompareTo(unitSymbol) > 0)
+                if (String.Compare(All_Units[mid].UnitSymbol,unitSymbol,true) > 0)
                     hi = mid;
                 else
                     lo = mid + 1;
             }
             lo--;
-            if (All_Units[lo].UnitSymbol.CompareTo(unitSymbol) == 0) // found
+            if (String.Compare(All_Units[lo].UnitSymbol, unitSymbol, true) == 0) // found
                 return lo;
             else
                 return ~hi;

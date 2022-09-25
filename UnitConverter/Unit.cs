@@ -205,5 +205,12 @@ namespace UnitConverter
         }
 
         #endregion
+
+        #region static member
+
+        public static readonly Unit One = new Unit();
+
+        #endregion
+
     }
 }
