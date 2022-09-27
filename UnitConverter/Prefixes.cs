@@ -46,7 +46,7 @@ namespace UnitConverter
         /// When the prefix is not found, the method returns 1.0.</param>
         /// <returns>The corresponding value of the prefix in Double.</returns>
         public static double GetPrefixValue(string prefix) =>
-            Dict_Prefixes.TryGetValue(prefix, out double result) ? result : 1.0;
+            prefix == null? 1.0: Dict_Prefixes.TryGetValue(prefix, out double result) ? result : 1.0;
 
         public Prefixes()
         {

@@ -16,8 +16,8 @@ namespace UnitConverter
     /// </summary>
     class Conversion
     {
-        private IList<Unit> new_Units;
-        private IList<string> new_Prefixes;
+        private List<Unit> new_Units;
+        private List<string> new_Prefixes;
         // When no unit is specified, the Unit is set to the unit of number, i.e. Measure of NUMBER and multiplier of 1.0.
         private static readonly Unit number_Unit = new Unit();
         private VariableWithUnit input, customConversionUnit, customConversionResult;
@@ -35,12 +35,12 @@ namespace UnitConverter
             }
         }
 
-        public IList<VariableWithUnit> Results { get; set; }
+        public List<VariableWithUnit> Results { get; set; }
 
         /// <summary>
         /// All units that matches the measure of the input, except the unit of input.
         /// </summary>
-        public IList<Unit> New_Units
+        public List<Unit> New_Units
         {
             get => new_Units;
             set
@@ -56,8 +56,8 @@ namespace UnitConverter
         /// List of all available units. This list will be serialized when the Save() method is called.
         /// The list will be reloaded from file when the program starts.
         /// </summary>
-        public IList<Unit> All_Units { get; set; }
-        public IList<string> New_Prefixes { get => new_Prefixes; set => new_Prefixes = value; }
+        public List<Unit> All_Units { get; set; }
+        public List<string> New_Prefixes { get => new_Prefixes; set => new_Prefixes = value; }
 
         /// <summary>
         /// A string expression that defines the input. It can be a artithmatic formula of numbers and units.

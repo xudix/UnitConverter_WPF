@@ -49,12 +49,13 @@
                     <Label x:Name="exp_Conv_Result_Label" Grid.Row="5" Grid.ColumnSpan="2" Foreground="White" HorizontalAlignment="Right" Margin="0,0,5,0" Content="{Binding CustomConversionResult}" ></Label>
                     <TextBox x:Name="conversion_Result_Exp_Input" Grid.Row="5" Grid.Column="2" Padding="5,0" Margin="5,0" TextAlignment="Left" Text="{Binding CustomConversionUnitExpression, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
                 </Grid>
-                <DataGrid Margin="5,10" ItemsSource="{Binding ObservableResults, Mode=TwoWay}" AutoGenerateColumns="False" HorizontalContentAlignment="Center" VerticalContentAlignment="Stretch" HeadersVisibility="None" SelectionChanged="Result_Prefix_Changed">
+                <DataGrid Margin="5,10" ItemsSource="{Binding ObservableResults, Mode=TwoWay}" AutoGenerateColumns="False" HorizontalContentAlignment="Center" VerticalContentAlignment="Stretch" HeadersVisibility="All" SelectionChanged="Result_Prefix_Changed" CanUserDeleteRows="False">
                     <DataGrid.Columns>
-                        <DataGridTextColumn Binding="{Binding Value, NotifyOnSourceUpdated=True, StringFormat=\{0:G6\}}" ClipboardContentBinding="{x:Null}" CanUserResize="False" Width="*" IsReadOnly="True" />
-                        <DataGridComboBoxColumn ClipboardContentBinding="{x:Null}" SelectedItemBinding="{Binding Prefix, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
-                                        ItemsSource="{Binding Mode=OneWay, Source={StaticResource preFixNames}}" CanUserResize="False" MinWidth="50" IsReadOnly="False"/>
-                        <DataGridTextColumn Binding="{Binding Unit}" ClipboardContentBinding="{x:Null}" CanUserResize="False" Width="*" IsReadOnly="True"/>
+                        <DataGridTextColumn Binding="{Binding Value, NotifyOnSourceUpdated=True, StringFormat=\{0:G6\}}" ClipboardContentBinding="{x:Null}" CanUserResize="False" Width="*" IsReadOnly="True" Header="Value" CanUserReorder="False" />
+                        <DataGridComboBoxColumn Header="Prefix" ItemsSource="{Binding Mode=OneWay, Source={StaticResource preFixNames}}" IsReadOnly="False" CanUserReorder="False"
+                                                TextBinding="{Binding Prefix}" />
+
+                        <DataGridTextColumn Binding="{Binding Unit}" ClipboardContentBinding="{x:Null}" CanUserResize="False" Width="*" IsReadOnly="True" Header="Unit" CanUserReorder="False"/>
                     </DataGrid.Columns>
 
                 </DataGrid>

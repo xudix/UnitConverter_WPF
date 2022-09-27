@@ -79,10 +79,18 @@ namespace UnitConverter
         public int IndexOf(T item) =>
             collection.IndexOf(item);
 
-        public void Insert(int index, T item) =>
-            collection.Insert(index, item);
+        public void Insert(int index, T value)
+        {
+            collection.Insert(index, value);
+            CollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Add, value));
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("Count"));
+        }
 
-        public void RemoveAt(int index) =>
+        public void RemoveAt(int index)
+        {
+            CollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Remove, collection[index]));
             collection.RemoveAt(index);
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("Count"));
+        }
     }
 }

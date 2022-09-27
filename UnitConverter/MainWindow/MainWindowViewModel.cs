@@ -69,13 +69,13 @@ namespace UnitConverter.MainWindow
             }
         }
         
-        public ObservableWrapper<VariableWithUnit> ObservableResults { get; set; }
+        public ObservableListWrapper<VariableWithUnit> ObservableResults { get; set; }
 
         /// <summary>
         /// A list of possible units based on user input in unit_Input.
         /// 
         /// </summary>
-        public ObservableWrapper<Unit> PossibleDisplayUnits
+        public ObservableListWrapper<Unit> PossibleDisplayUnits
         {
             get => possibleDisplayUnits;
             set
@@ -136,7 +136,7 @@ namespace UnitConverter.MainWindow
         /// <summary>
         /// 
         /// </summary>
-        public ObservableWrapper<Unit> All_Units 
+        public ObservableListWrapper<Unit> All_Units 
         { 
             get => all_Units;
             set 
@@ -150,7 +150,7 @@ namespace UnitConverter.MainWindow
             }
         }
 
-        private ObservableWrapper<Unit> all_Units;
+        private ObservableListWrapper<Unit> all_Units;
 
         /// <summary>
         /// 
@@ -286,10 +286,10 @@ namespace UnitConverter.MainWindow
             model = new Conversion();
             //ObservableResults = new ObservableCollection<VariableWithUnit>();
             //model.Results = ObservableResults;
-            ObservableResults = new ObservableWrapper<VariableWithUnit>(model.Results);
-            All_Units = new ObservableWrapper<Unit>(model.All_Units);
+            ObservableResults = new ObservableListWrapper<VariableWithUnit>(model.Results);
+            All_Units = new ObservableListWrapper<Unit>(model.All_Units);
             
-            PossibleDisplayUnits = new ObservableWrapper<Unit>(model.All_Units);
+            PossibleDisplayUnits = new ObservableListWrapper<Unit>(model.All_Units);
             editTabUnit = new Unit();
 
             // For testing only
@@ -303,7 +303,7 @@ namespace UnitConverter.MainWindow
         #region private fields
 
         private Conversion model;
-        private ObservableWrapper<Unit> possibleDisplayUnits;
+        private ObservableListWrapper<Unit> possibleDisplayUnits;
         private string inputUnitStr = "";
         /// <summary>
         /// Saves the old unit to be updated
@@ -320,7 +320,7 @@ namespace UnitConverter.MainWindow
         {
             if (inputStr == "")
             {
-                PossibleDisplayUnits = new ObservableWrapper<Unit>(model.All_Units);
+                PossibleDisplayUnits = new ObservableListWrapper<Unit>(model.All_Units);
             }
             else
             {
@@ -330,7 +330,7 @@ namespace UnitConverter.MainWindow
                     if (unit.ToString().ToLower().Contains(inputStr.ToLower()))
                         searchResults.Add(unit);
                 }
-                PossibleDisplayUnits = new ObservableWrapper<Unit>(searchResults);
+                PossibleDisplayUnits = new ObservableListWrapper<Unit>(searchResults);
             }
             NotifyPropertyChanged("PossibleDisplayUnits");
         }
