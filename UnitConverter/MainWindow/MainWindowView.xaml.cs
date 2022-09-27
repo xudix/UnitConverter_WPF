@@ -41,11 +41,6 @@ namespace UnitConverter
             }
         }
 
-        private void Result_Selected_Cell_Changed(object sender, SelectedCellsChangedEventArgs e)
-        {
-            Console.WriteLine(e.ToString());
-        }
-
         private void Update_Unit_To_Edit(object sender, SelectionChangedEventArgs e)
         {
             viewModel.UpdateUnitToEdit((sender as ComboBox).SelectedItem as Unit);

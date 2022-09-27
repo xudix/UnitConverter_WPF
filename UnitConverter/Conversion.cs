@@ -31,7 +31,7 @@ namespace UnitConverter
             set
             {
                 input = value;
-                updateInputUnit(input.Unit);
+                UpdateInputUnit(input.Unit);
             }
         }
 
@@ -225,7 +225,7 @@ namespace UnitConverter
         /// Then calculate the results for all possible units.
         /// </summary>
         /// <param name="unit"></param>
-        private void updateInputUnit(Unit unit)
+        private void UpdateInputUnit(Unit unit)
         {
             Input.Unit = unit;
             // Found the correct unit. Now generate the list of new units based on measure
@@ -360,7 +360,7 @@ namespace UnitConverter
             {
                 if (unit.UnitSymbol.ToLower() == inputUnitStr.ToLower())
                 {
-                    updateInputUnit(unit);
+                    UpdateInputUnit(unit);
                     return;
                 }
                     
@@ -369,12 +369,12 @@ namespace UnitConverter
             {
                 if (unit.ToString().ToLower().Contains(inputUnitStr.ToLower()))
                 {
-                    updateInputUnit(unit);
+                    UpdateInputUnit(unit);
                     return;
                 }
             }
             input.Unit = number_Unit;
-            updateInputUnit(number_Unit);
+            UpdateInputUnit(number_Unit);
         }
 
         public void SetInputValue(double newValue)

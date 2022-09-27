@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Linq;
@@ -13,18 +14,20 @@ namespace UnitConverter
     /// A observable wrapper for a generic collection. It does not copy the collection source. Instead, it keeps a reference to the collection source. In addition, the caller can explicitly invoke the CollectionChanged and PropertyChanged methods when anythin in the collection is updated.
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    public class ObservableWrapper<T> : INotifyCollectionChanged, INotifyPropertyChanged, ICollection<T>
+    public class ObservableWrapper<T> : INotifyCollectionChanged, INotifyPropertyChanged, IList<T>
     {
         public event NotifyCollectionChangedEventHandler CollectionChanged;
         public event PropertyChangedEventHandler PropertyChanged;
 
-        private ICollection<T> collection;
+        private IList<T> collection;
 
         public int Count => collection.Count;
 
         public bool IsReadOnly => collection.IsReadOnly;
 
-        public ObservableWrapper(ICollection<T> collectionSource)
+        public T this[int index] { get => collection[index]; set => collection[index] = value; }
+
+        public ObservableWrapper(IList<T> collectionSource)
         {
             collection = collectionSource;
         }
@@ -72,5 +75,14 @@ namespace UnitConverter
 
         IEnumerator IEnumerable.GetEnumerator() =>
             collection.GetEnumerator();
+
+        public int IndexOf(T item) =>
+            collection.IndexOf(item);
+
+        public void Insert(int index, T item) =>
+            collection.Insert(index, item);
+
+        public void RemoveAt(int index) =>
+            collection.RemoveAt(index);
     }
 }
