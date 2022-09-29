@@ -189,10 +189,17 @@ namespace UnitConverter.MainWindow
         #endregion
 
         #region Public methods exposed to view
-        public void UpdateResultPrefix(int index, string newPrefix)
+        public void UpdateResultPrefix(VariableWithUnit variable, string newPrefix)
         {
-            model.UpdateResultPrefix(index, newPrefix);
-            ObservableResults.RaiseCollectionChangedEvent();
+            int index;
+            if (variable != null)
+                for (index = 0; index < ObservableResults.Count; index++)
+                    if (ObservableResults[index].Unit.UnitSymbol == variable.Unit.UnitSymbol)
+                    {
+                        model.UpdateResultPrefix(index, newPrefix);
+                        ObservableResults.RaiseCollectionChangedEvent();
+                        return;
+                    }
             //NotifyPropertyChanged("Results");
         }
 

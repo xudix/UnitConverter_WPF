@@ -17,6 +17,12 @@
 
                 <StackPanel.Resources>
                     <local:Prefixes x:Key="preFixNames"/>
+                    <DataTemplate x:Key="PrefixTemplate">
+                        <StackPanel>
+                            <ComboBox ItemsSource="{Binding Mode=OneWay, Source={StaticResource preFixNames}}" Text="{Binding Prefix}" Foreground="Black" IsReadOnly="True" SelectionChanged="Result_Prefix_Changed"/>
+                        </StackPanel>
+                        
+                    </DataTemplate>
                 </StackPanel.Resources>
 
                 <Grid x:Name="grid">
@@ -30,7 +36,7 @@
                     </Grid.RowDefinitions>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition/>
-                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="Auto" MinWidth="50"/>
                         <ColumnDefinition/>
                     </Grid.ColumnDefinitions>
                     <Label Content="Value" HorizontalAlignment="Center" Margin="0" Foreground="White" VerticalContentAlignment="Stretch" HorizontalContentAlignment="Center"/>
@@ -38,7 +44,7 @@
                     <Label Grid.Column="2" Content="Unit" HorizontalAlignment="Center" Margin="0" Foreground="White" VerticalContentAlignment="Stretch" HorizontalContentAlignment="Center"/>
                     <TextBox x:Name="conversion_Value_Input" Grid.Row="1" Padding="5,0" Margin="5,0" TextAlignment="Right" Text="{Binding InputValue, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" BorderBrush="{x:Null}" InputScope="Number" />
                     <ComboBox x:Name="conversion_Prefix_Input" Grid.Column="1" Grid.Row="1" VerticalContentAlignment="Stretch" HorizontalContentAlignment="Center" Background="{x:Null}" Margin="5,0" 
-                      ItemsSource="{Binding Mode=OneWay, Source={StaticResource preFixNames}}" Text="{Binding InputPrefix}" Foreground="Black" IsReadOnly="True" MinWidth="40" BorderBrush="{x:Null}"/>
+                      ItemsSource="{Binding Mode=OneWay, Source={StaticResource preFixNames}}" Text="{Binding InputPrefix}" Foreground="Black" IsReadOnly="True" MinWidth="50" BorderBrush="{x:Null}"/>
                     <ComboBox x:Name="conversion_Unit_Input" Grid.Column="2" Grid.Row="1" Foreground="Black" VerticalContentAlignment="Stretch" Background="{x:Null}" 
                     IsEditable="True" Margin="5,0" Text="{Binding InputUnitStr}" ItemsSource="{Binding PossibleDisplayUnits}" PreviewTextInput="Unit_Input_PreviewTextInput" HorizontalContentAlignment="Stretch" BorderBrush="{x:Null}" IsTextSearchEnabled="False"/>
                     <Label Grid.Row="2" Content="Expression" Foreground="White" />
@@ -49,11 +55,12 @@
                     <Label x:Name="exp_Conv_Result_Label" Grid.Row="5" Grid.ColumnSpan="2" Foreground="White" HorizontalAlignment="Right" Margin="0,0,5,0" Content="{Binding CustomConversionResult}" ></Label>
                     <TextBox x:Name="conversion_Result_Exp_Input" Grid.Row="5" Grid.Column="2" Padding="5,0" Margin="5,0" TextAlignment="Left" Text="{Binding CustomConversionUnitExpression, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
                 </Grid>
-                <DataGrid Margin="5,10" ItemsSource="{Binding ObservableResults, Mode=TwoWay}" AutoGenerateColumns="False" HorizontalContentAlignment="Center" VerticalContentAlignment="Stretch" HeadersVisibility="All" SelectionChanged="Result_Prefix_Changed" CanUserDeleteRows="False">
+                <DataGrid Margin="5,10" ItemsSource="{Binding ObservableResults, Mode=TwoWay}" AutoGenerateColumns="False" HorizontalContentAlignment="Center" VerticalContentAlignment="Stretch" HeadersVisibility="All" CanUserDeleteRows="False">
                     <DataGrid.Columns>
                         <DataGridTextColumn Binding="{Binding Value, NotifyOnSourceUpdated=True, StringFormat=\{0:G6\}}" ClipboardContentBinding="{x:Null}" CanUserResize="False" Width="*" IsReadOnly="True" Header="Value" CanUserReorder="False" />
-                        <DataGridComboBoxColumn Header="Prefix" ItemsSource="{Binding Mode=OneWay, Source={StaticResource preFixNames}}" IsReadOnly="False" CanUserReorder="False"
-                                                TextBinding="{Binding Prefix}" />
+                        <DataGridTemplateColumn Header="Prefix" CellTemplate="{StaticResource PrefixTemplate}" MinWidth="50">
+                            
+                        </DataGridTemplateColumn>
 
                         <DataGridTextColumn Binding="{Binding Unit}" ClipboardContentBinding="{x:Null}" CanUserResize="False" Width="*" IsReadOnly="True" Header="Unit" CanUserReorder="False"/>
                     </DataGrid.Columns>

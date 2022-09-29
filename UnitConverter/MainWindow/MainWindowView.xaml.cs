@@ -35,10 +35,14 @@ namespace UnitConverter
 
         private void Result_Prefix_Changed(object sender, SelectionChangedEventArgs e)
         {
-            if(e.OriginalSource.GetType() == typeof(ComboBox))
-            {
-                viewModel.UpdateResultPrefix((sender as DataGrid).SelectedIndex, (e.OriginalSource as ComboBox).SelectedItem as string);
-            }
+            if(sender != null && sender is ComboBox)
+                if(e.AddedItems.Count > 0 &&((sender as ComboBox).DataContext as VariableWithUnit).Prefix != e.AddedItems[0] as string)
+                {
+                    string selectedPrefix = (sender as ComboBox).SelectedItem as string;
+                    viewModel.UpdateResultPrefix((sender as ComboBox).DataContext as VariableWithUnit, selectedPrefix);
+                    (sender as ComboBox).SelectedValue = selectedPrefix;
+                }
+            
         }
 
         private void Update_Unit_To_Edit(object sender, SelectionChangedEventArgs e)
